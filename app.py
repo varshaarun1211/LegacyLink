@@ -1,5 +1,5 @@
 
-
+import os
 from flask import Flask, render_template
 from models import db
 
@@ -10,7 +10,10 @@ from models.alumni import Alumni
 app = Flask(__name__, instance_relative_config=True)
 
 # Database configuration
-app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///legacylink.db"
+app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
+    "DATABASE_URL",
+    "sqlite:///legacylink.db"
+)
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
 # Connect SQLAlchemy to Flask
