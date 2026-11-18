@@ -49,9 +49,6 @@ def create_app():
 def load_user(user_id):
     return db.session.get(User, int(user_id))
 
-
-# ---------- helpers ----------
-
 def admin_required(view):
     """Backend permission check: never rely on hidden buttons."""
     @wraps(view)
@@ -101,8 +98,6 @@ def validate_profile_fields(form):
     return data, errors
 
 
-# ---------- routes ----------
-
 def register_routes(app):
 
     @app.route("/")
@@ -142,8 +137,6 @@ def register_routes(app):
             db.session.add(user)
             db.session.flush()
 
-            # If the college pre-imported this person, claim that record
-            # (it still goes to pending so an admin must confirm).
             profile = Alumni.query.filter(
                 Alumni.user_id.is_(None),
                 func.lower(Alumni.full_name) == data["full_name"].lower(),
@@ -170,7 +163,7 @@ def register_routes(app):
         flash("Registration submitted. An administrator will verify your alumni status.", "success")
         return redirect(url_for("login"))
 
-    # --- Login / Logout ---
+  
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if current_user.is_authenticated:
@@ -196,9 +189,7 @@ def register_routes(app):
     def logout():
         logout_user()
         flash("You have been logged out.", "info")
-        return redirect(url_for("login"))
-
-    # --- Directory ---
+      
     @app.route("/alumni")
     def alumni_directory():
         q = clean(request.args.get("q"), 100)
@@ -218,7 +209,6 @@ def register_routes(app):
             page=page, per_page=PER_PAGE, error_out=False
         )
 
-        # Filter dropdown options come from public profiles only
         public = Alumni.query.filter_by(verification_status="approved", is_visible=True)
         departments = [d for (d,) in public.with_entities(Alumni.department).distinct().order_by(Alumni.department)]
         years = [y for (y,) in public.with_entities(Alumni.graduation_year).distinct().order_by(Alumni.graduation_year.desc())]
@@ -234,12 +224,12 @@ def register_routes(app):
         profile = db.get_or_404(Alumni, id)
         is_owner = current_user.is_authenticated and profile.user_id == current_user.id
         is_admin = current_user.is_authenticated and current_user.is_admin
-        # Pending/rejected/hidden profiles: 404 for everyone except owner and admins
+      
         if not (profile.is_public or is_owner or is_admin):
             abort(404)
         return render_template("profile.html", profile=profile, is_owner=is_owner)
 
-    # --- Edit own profile ---
+  
     @app.route("/profile/edit", methods=["GET", "POST"])
     @login_required
     def edit_profile():
@@ -255,7 +245,6 @@ def register_routes(app):
                 flash(e, "danger")
             return render_template("edit_profile.html", profile=profile), 400
 
-        # Changing identity details requires re-verification
         identity_changed = any(
             getattr(profile, f) != data[f]
             for f in ("full_name", "department", "degree", "graduation_year")
@@ -274,7 +263,6 @@ def register_routes(app):
         flash("Profile updated.", "success")
         return redirect(url_for("alumni_profile", id=profile.id))
 
-    # --- Admin ---
     @app.route("/admin/verifications")
     @admin_required
     def admin_verifications():
@@ -322,7 +310,6 @@ def register_routes(app):
         return render_template("error.html", code=404, message="Page not found."), 404
 
 
-# ---------- CLI ----------
 
 def register_cli(app):
 
