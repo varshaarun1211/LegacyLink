@@ -1,5 +1,4 @@
 
-
 from app import app
 from models import db
 from models.user import User
@@ -8,7 +7,7 @@ from werkzeug.security import generate_password_hash
 
 with app.app_context():
 
-    # Create a fictional test user
+    # Create a fictional test user if it doesn't exist
     user = User.query.filter_by(
         email="arun.test@example.com"
     ).first()
@@ -22,7 +21,7 @@ with app.app_context():
         db.session.add(user)
         db.session.flush()
 
-    # Create a fictional approved alumni profile
+    # Create a fictional approved alumni profile if it doesn't exist
     profile = Alumni.query.filter_by(user_id=user.id).first()
 
     if not profile:
@@ -39,17 +38,23 @@ with app.app_context():
         )
         db.session.add(profile)
 
-    # Create a fictional pending alumni profile
-    pending_profile = Alumni(
+    # Create a fictional pending alumni profile if it doesn't exist
+    pending_profile = Alumni.query.filter_by(
         full_name="Priya Sharma",
         department="Information Technology",
-        degree="BTech Information Technology",
-        graduation_year=2023,
-        verification_status="pending",
-        is_visible=False
-    )
+        graduation_year=2023
+    ).first()
 
-    db.session.add(pending_profile)
+    if not pending_profile:
+        pending_profile = Alumni(
+            full_name="Priya Sharma",
+            department="Information Technology",
+            degree="BTech Information Technology",
+            graduation_year=2023,
+            verification_status="pending",
+            is_visible=False
+        )
+        db.session.add(pending_profile)
 
     # Save records
     db.session.commit()
