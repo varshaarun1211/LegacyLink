@@ -102,9 +102,8 @@ def register_routes(app):
 
     @app.route("/")
     def index():
-        return redirect(url_for("alumni_directory"))
-
-    # --- Registration ---
+        return render_template("index.html")
+    
     @app.route("/register", methods=["GET", "POST"])
     def register():
         if current_user.is_authenticated:
@@ -132,7 +131,7 @@ def register_routes(app):
             return render_template("register.html", form=request.form), 400
 
         try:
-            user = User(email=email, role="alumni")  # role is never user-supplied
+            user = User(email=email, role="alumni") 
             user.set_password(password)
             db.session.add(user)
             db.session.flush()
@@ -175,7 +174,7 @@ def register_routes(app):
         password = request.form.get("password", "")
         user = User.query.filter_by(email=email).first()
 
-        # Same message for unknown email / wrong password
+        
         if not user or not user.check_password(password):
             flash("Invalid email or password.", "danger")
             return render_template("login.html"), 401
@@ -198,7 +197,7 @@ def register_routes(app):
         year = request.args.get("graduation_year", type=int)
         page = request.args.get("page", 1, type=int)
 
-        query = Alumni.query.filter_by(verification_status="approved", is_visible=True)
+        query = Alumni.query.filter_by(verification_status="approved",is_visible=True,is_public=True)
         if q:
             query = query.filter(Alumni.full_name.ilike(f"%{q}%"))
         if department:
@@ -226,8 +225,13 @@ def register_routes(app):
         is_owner = current_user.is_authenticated and profile.user_id == current_user.id
         is_admin = current_user.is_authenticated and current_user.is_admin
       
-        if not (profile.is_public or is_owner or is_admin):
-            abort(404)
+        if not (is_owner or is_admin):
+            if (
+                profile.verification_status != "approved"
+                or not profile.is_visible
+                or not profile.is_public
+            ):
+                abort(404)
         return render_template("profile.html", profile=profile, is_owner=is_owner)
 
   
