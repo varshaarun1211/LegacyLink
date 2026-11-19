@@ -2,15 +2,26 @@
 
 **Connections that last. Legacies that grow.**
 
-LegacyLink is a college-specific alumni networking platform designed to connect former students, help alumni maintain professional relationships, and support mentorship and career opportunities.
+LegacyLink is a college-specific alumni networking platform designed to connect former students, maintain professional relationships, and support mentorship and career opportunities.
+
+## Features
+
+- Alumni registration and profiles
+- Admin verification of alumni
+- Secure password storage
+- Verified alumni directory
+- Search and filtering (planned/integration dependent)
+- Future mentorship and career opportunities
 
 ## Technology Stack
 
 - Python
 - Flask
 - Flask-SQLAlchemy
+- Flask-Migrate
 - SQLite
 - HTML and CSS
+- Git and GitHub
 
 ## Database Structure
 
@@ -61,7 +72,7 @@ Stores alumni profile information.
 - Alumni profile `user_id` values must reference valid user accounts when provided.
 - Each user can have at most one linked alumni profile.
 - Full name, department, and degree are required.
-- Graduation year must be a valid year between 1950 and the current year.
+- Graduation year must be between 1950 and the current year.
 - Verification status must be `pending`, `approved`, or `rejected`.
 
 ## Database Indexes
@@ -75,10 +86,17 @@ The Alumni table includes indexes to improve query performance:
 
 LegacyLink uses Flask-Migrate to manage database schema changes.
 
-To initialize migrations for a fresh development setup:
+Apply existing migrations:
 
-```powershell
-flask --app app db init
+```bash
+flask --app app db upgrade
+```
+
+Generate a migration after changing database models:
+
+```bash
+flask --app app db migrate -m "Describe your changes"
+```
 
 ## Security and Verification
 
@@ -87,7 +105,7 @@ flask --app app db init
 - Pending profiles remain hidden from the directory.
 - Rejected profiles remain hidden.
 - Only approved and visible profiles should appear in the alumni directory.
-- Admin accounts should be created through an authorized process.
+- Admin accounts must be created through an authorized process.
 
 ## CSV Import
 
@@ -96,7 +114,7 @@ LegacyLink supports importing alumni profile data through a CSV file.
 - CSV files are read using Python's `csv` module.
 - Duplicate detection checks full name, department, and graduation year.
 - Imported profiles start with pending verification.
-- Imported profiles are hidden until approved.
+- Imported profiles remain hidden until approved.
 - Imported records can exist without a linked user account.
 
 ## Database Testing
@@ -115,28 +133,38 @@ The database has been tested for:
 - Orphaned alumni records.
 - Duplicate alumni records.
 
-The latest database integrity checks reported:
-
-- No duplicate alumni records.
-- No duplicate user email addresses.
-- No foreign-key violations.
-- No orphaned alumni records.
+The latest database integrity checks reported no duplicate alumni records, duplicate user email addresses, foreign-key violations, or orphaned alumni records.
 
 ## Project Setup
 
 1. Clone the repository.
 2. Create and activate a Python virtual environment.
-3. Install dependencies using `pip install -r requirements.txt`.
-4. Run the application using `python app.py`.
+3. Install dependencies:
+
+```bash
+pip install -r requirements.txt
+```
+
+4. Apply database migrations:
+
+```bash
+flask --app app db upgrade
+```
+
+5. Run the application:
+
+```bash
+python app.py
+```
 
 ## Future Improvements
 
 - Alumni search and filtering
 - Admin verification dashboard
-- CSV import for authorized alumni records
 - Mentorship and networking features
 - Career opportunities and events
 - PostgreSQL database for production deployment
+- Deployment on Render
 
 ## Entity Relationship Diagram
 
