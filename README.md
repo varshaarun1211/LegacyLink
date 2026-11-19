@@ -2,133 +2,190 @@
 
 **Connections that last. Legacies that grow.**
 
-A lightweight alumni networking platform built for a single college, using Python and Flask.
-
-LegacyLink helps graduates of one college stay connected, keep their professional profiles up to date, and find each other through a searchable directory. Every registration is checked by an administrator before it appears publicly, so the directory only ever lists genuine alumni. The code is deliberately small and easy to read: one Flask file, one SQLite database, and a handful of templates.
-
-This is an early version focused on the essentials. Events, job opportunities and mentorship are planned for later releases.
+LegacyLink is a college-specific alumni networking platform designed to connect former students, maintain professional relationships, and support mentorship and career opportunities.
 
 ## Features
 
-- **Alumni registration** - Alumni sign up with their name, email, department, degree and graduation year.
-- **Admin verification** - New accounts stay `pending` until an administrator approves or rejects them.
-- **Secure login** - Passwords are stored as hashes, never as plain text.
-- **Alumni directory** - Only approved and visible profiles are listed.
-- **Search and filters** - Search by name and filter by department or graduation year.
-- **Protected admin routes** - Permissions are checked on the backend, not just hidden in the interface.
-- **Simple stack** - Python, Flask, Flask-SQLAlchemy and SQLite. No extra services required.
+- Alumni registration and profiles
+- Admin verification of alumni
+- Secure password storage
+- Verified alumni directory
+- Search and filtering (planned/integration dependent)
+- Future mentorship and career opportunities
 
-## Tech Stack
+## Technology Stack
 
-| Component | Technology |
-|---|---|
-| Language | Python |
-| Backend | Flask |
-| Database | SQLite via Flask-SQLAlchemy |
-| Frontend | HTML, Jinja templates, Bootstrap |
-| Version control | Git and GitHub |
-| Deployment | Render (planned) |
+- Python
+- Flask
+- Flask-SQLAlchemy
+- Flask-Migrate
+- SQLite
+- HTML and CSS
+- Git and GitHub
 
-## Project Structure
+## Database Structure
 
-```
-LegacyLink/
-├── app.py              # Flask app, database models and routes
-├── requirements.txt    # Python dependencies
-├── .gitignore          # Keeps the database and venv out of GitHub
-├── README.md
-└── templates/
-    ├── base.html
-    ├── register.html
-    ├── login.html
-    ├── alumni.html
-    └── verifications.html
-```
+LegacyLink currently uses SQLite for development.
 
-## Getting Started
+### 1. Users Table
 
-### 1. Clone the repository
+Stores account and login information.
+
+- `id`: Unique user ID (primary key)
+- `email`: User email address (unique)
+- `password_hash`: Securely hashed password
+- `role`: User role
+- `email_verified`: Email verification status
+- `created_at`: Account creation date
+
+### 2. Alumni Table
+
+Stores alumni profile information.
+
+- `id`: Unique alumni profile ID (primary key)
+- `user_id`: Linked user ID (foreign key, nullable and unique)
+- `full_name`: Alumni name
+- `department`: Academic department
+- `degree`: Degree obtained
+- `graduation_year`: Graduation year
+- `occupation`: Current occupation
+- `company`: Current company
+- `skills`: Alumni skills
+- `bio`: Profile description
+- `verification_status`: Pending, approved, or rejected
+- `is_visible`: Directory visibility
+- `verified_by`: Admin user ID who verified the profile
+- `verified_at`: Verification date and time
+- `created_at`: Profile creation date
+- `updated_at`: Last profile update date and time
+
+## Relationships
+
+- One user can have one alumni profile.
+- Alumni profiles are linked to users through `user_id`.
+- Alumni profiles can exist without a linked user account, allowing authorized CSV imports.
+- Each alumni profile can be reviewed through the verification process.
+
+## Database Constraints and Validation
+
+- User email addresses must be unique.
+- Alumni profile `user_id` values must reference valid user accounts when provided.
+- Each user can have at most one linked alumni profile.
+- Full name, department, and degree are required.
+- Graduation year must be between 1950 and the current year.
+- Verification status must be `pending`, `approved`, or `rejected`.
+
+## Database Indexes
+
+The Alumni table includes indexes to improve query performance:
+
+- `department`: Supports faster department-based searches.
+- `graduation_year`: Supports faster graduation-year filtering.
+
+## Database Migrations
+
+LegacyLink uses Flask-Migrate to manage database schema changes.
+
+Apply existing migrations:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/YOUR-REPO.git
-cd YOUR-REPO
+flask --app app db upgrade
 ```
 
-### 2. Create a virtual environment
+Generate a migration after changing database models:
 
 ```bash
-python -m venv venv
-venv\Scripts\activate          # Windows
-source venv/bin/activate       # Mac / Linux
+flask --app app db migrate -m "Describe your changes"
 ```
 
-### 3. Install dependencies
+## Security and Verification
+
+- Passwords are stored as hashes, never as plain text.
+- New alumni profiles start with pending verification.
+- Pending profiles remain hidden from the directory.
+- Rejected profiles remain hidden.
+- Only approved and visible profiles should appear in the alumni directory.
+- Admin accounts must be created through an authorized process.
+
+## CSV Import
+
+LegacyLink supports importing alumni profile data through a CSV file.
+
+- CSV files are read using Python's `csv` module.
+- Duplicate detection checks full name, department, and graduation year.
+- Imported profiles start with pending verification.
+- Imported profiles remain hidden until approved.
+- Imported records can exist without a linked user account.
+
+## Database Testing
+
+The database has been tested for:
+
+- Creating, reading, updating, and deleting records.
+- User and alumni profile relationships.
+- Duplicate email constraints.
+- Graduation year validation.
+- Required field validation.
+- Verification status validation.
+- Alumni approval and rejection behaviour.
+- CSV importing and duplicate prevention.
+- Foreign-key integrity.
+- Orphaned alumni records.
+- Duplicate alumni records.
+
+The latest database integrity checks reported no duplicate alumni records, duplicate user email addresses, foreign-key violations, or orphaned alumni records.
+
+## Project Setup
+
+1. Clone the repository.
+2. Create and activate a Python virtual environment.
+3. Install dependencies:
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 4. Run the app
+4. Apply database migrations:
+
+```bash
+flask --app app db upgrade
+```
+
+5. Run the application:
 
 ```bash
 python app.py
 ```
 
-The SQLite database (`instance/legacylink.db`) is created automatically on first run. Open http://127.0.0.1:5000 in your browser.
+## Future Improvements
 
-### 5. Create an admin account
+- Alumni search and filtering
+- Admin verification dashboard
+- Mentorship and networking features
+- Career opportunities and events
+- PostgreSQL database for production deployment
+- Deployment on Render
 
-Admins cannot register publicly. Create one from the terminal:
+## Entity Relationship Diagram
 
-```bash
-flask --app app create-admin
+```mermaid
+erDiagram
+    USERS ||--o| ALUMNI : has
+
+    USERS {
+        int id PK
+        string email
+        string password_hash
+        string role
+    }
+
+    ALUMNI {
+        int id PK
+        int user_id FK
+        string full_name
+        string department
+        string degree
+        int graduation_year
+        string verification_status
+    }
 ```
-
-## How It Works
-
-1. An alumnus registers. Their profile is saved with `verification_status = "pending"`.
-2. An admin opens `/admin/verifications` and checks the details against authorized college records.
-3. The admin approves or rejects the registration.
-4. Approved and visible profiles appear in the alumni directory.
-
-## Routes
-
-| Route | Method | Purpose |
-|---|---|---|
-| `/register` | GET, POST | Alumni registration |
-| `/login` | GET, POST | Log in |
-| `/logout` | POST | Log out |
-| `/alumni` | GET | Alumni directory with search and filters |
-| `/admin/verifications` | GET | View pending registrations (admin only) |
-| `/admin/approve/<id>` | POST | Approve a profile (admin only) |
-| `/admin/reject/<id>` | POST | Reject a profile (admin only) |
-
-## Security and Privacy
-
-- Passwords are hashed with Werkzeug.
-- Admin routes are restricted on the server.
-- Pending and rejected profiles never appear in the directory.
-- Use **fictional sample data** during development.
-- Never commit the database or real alumni information to GitHub.
-- Set a strong `SECRET_KEY` environment variable before deploying.
-
-## Roadmap
-
-- [ ] Alumni profile page and profile editing
-- [ ] Email confirmation
-- [ ] CSRF protection
-- [ ] Events and reunions
-- [ ] Job and internship postings
-- [ ] Mentorship requests
-- [ ] Deployment on Render with a persistent database
-
-## Contributing
-
-1. Create a branch: `git checkout -b feature-name`
-2. Commit your changes: `git commit -m "Describe your change"`
-3. Push the branch: `git push origin feature-name`
-4. Open a pull request on GitHub.
-
-## License
-
-Shiv Nadar University - SSN College of Engineering; B.Tech Information Technology
