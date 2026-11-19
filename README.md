@@ -46,6 +46,7 @@ Stores alumni profile information.
 - `verified_by`: Admin user ID who verified the profile
 - `verified_at`: Verification date and time
 - `created_at`: Profile creation date
+- `updated_at`: Last profile update date and time
 
 ## Relationships
 
@@ -62,6 +63,22 @@ Stores alumni profile information.
 - Full name, department, and degree are required.
 - Graduation year must be a valid year between 1950 and the current year.
 - Verification status must be `pending`, `approved`, or `rejected`.
+
+## Database Indexes
+
+The Alumni table includes indexes to improve query performance:
+
+- `department`: Supports faster department-based searches.
+- `graduation_year`: Supports faster graduation-year filtering.
+
+## Database Migrations
+
+LegacyLink uses Flask-Migrate to manage database schema changes.
+
+To initialize migrations for a fresh development setup:
+
+```powershell
+flask --app app db init
 
 ## Security and Verification
 
