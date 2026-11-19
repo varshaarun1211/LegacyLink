@@ -131,4 +131,4 @@ flask --app app create-admin
 
 ## License
 
-Add a license of your choice (for example MIT) before making the repository public.
+Shiv Nadar University - SSN College of Engineering; B.Tech Information Technology
