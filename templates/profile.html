@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block title %}Alumni profile | LegacyLink{% endblock %}
 {% block content %}
-<section class="page-head"><div class="container"><a class="text-link" href="{{ url_for('directory') }}">← Back to directory</a><p class="eyebrow">Alumni profile</p><h1>Maya Rao</h1><p class="lead">Computer Science · Class of 2021</p></div></section>
+<section class="page-head"><div class="container"><a class="text-link" href="{{ url_for('alumni_directory') }}">← Back to directory</a><p class="eyebrow">Alumni profile</p><h1>Maya Rao</h1><p class="lead">Computer Science · Class of 2021</p></div></section>
 <section class="section"><div class="container profile">
  <div class="avatar profile-avatar coral-bg">MR</div><div><span class="pill approved">Approved profile</span><h2>Product designer at Northstar Labs</h2><p class="lead">I enjoy making complex tools easier to use and helping early-career designers find their footing.</p><h3>Interests</h3><p class="tags"><span>Product design</span><span>Mentoring</span><span>Accessibility</span></p><p class="demo">Fictional demo content. Load profile {{ profile_id }} from Flask and show only approved, visible profiles.</p></div>
 </div></section>

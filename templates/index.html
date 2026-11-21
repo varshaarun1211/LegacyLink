@@ -1,35 +1,37 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>LegacyLink | Alumni Network</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='style.css') }}">
-</head>
-
-<body>
-    <header>
-        <h1>LegacyLink</h1>
-        <p>Connections that last. Legacies that grow.</p>
-    </header>
-
-    <main>
-        <h2>Welcome to LegacyLink!</h2>
-
-        <p>
-            A place where alumni reconnect, share opportunities,
-            and help the next generation grow.
-        </p>
-
-        <a href="{{ url_for('alumni_directory') }}"> Explore Our Alumni Network </a>
-    </main>
-
-    <footer>
-        <p>© 2026 LegacyLink. Built to connect generations.</p>
-    </footer>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}LegacyLink | Alumni connections that last{% endblock %}
+{% block content %}
+<section class="hero">
+ <div class="container hero-grid">
+  <div>
+   <p class="eyebrow">Your community, beyond campus</p>
+   <h1>Good things happen when <span>we stay connected.</span></h1>
+   <p class="lead">Reconnect with classmates, learn from alumni, and find new ways to contribute to the community you helped build.</p>
+   <p class="button-row"><a class="button" href="{{ url_for('register') }}">Join LegacyLink</a><a class="button button-secondary" href="{{ url_for('alumni_directory') }}">Explore the directory</a></p>
+   <p class="muted">A welcoming space for alumni at every stage of the journey.</p>
+  </div>
+  <div class="hero-art" aria-hidden="true">
+   <div class="orbit"></div><div class="bubble bubble-one"><b>Reconnect</b><br><small>Find your people</small></div>
+   <div class="bubble bubble-two"><b>One community</b><br><small>Many paths forward</small></div>
+   <div class="bubble bubble-three"><b>Grow together</b><br><small>Share what you know</small></div>
+  </div>
+ </div>
+</section>
+<section class="section soft" id="how-it-works">
+ <div class="container">
+  <div class="center heading"><p class="eyebrow">A network with purpose</p><h2>Make the connection count</h2><p>LegacyLink brings alumni together to exchange ideas, open doors, and keep their community strong.</p></div>
+  <div class="grid three">
+   <article class="card"><div class="icon coral">◎</div><h3>Reconnect</h3><p>Find classmates and rediscover the people who made campus feel like home.</p></article>
+   <article class="card"><div class="icon blue">↗</div><h3>Share experience</h3><p>Learn from alumni across fields and share lessons from your own path.</p></article>
+   <article class="card"><div class="icon green">✳</div><h3>Give back</h3><p>Support students and fellow graduates through knowledge and opportunity.</p></article>
+  </div>
+ </div>
+</section>
+<section class="section">
+ <div class="container about">
+  <div class="about-art" aria-hidden="true"><span>LL</span></div>
+  <div><p class="eyebrow">About LegacyLink</p><h2>Our community doesn't end at graduation.</h2><p class="lead">LegacyLink is a place for alumni to keep learning from each other and stay involved. Build your profile, discover fellow graduates, and find a meaningful way to reconnect.</p><a class="text-link" href="{{ url_for('register') }}">Become part of the network →</a></div>
+ </div>
+</section>
+<section class="cta"><div class="container cta-inner"><div><p class="eyebrow light">The next connection starts here</p><h2>Pick up where your story left off.</h2></div><a class="button button-white" href="{{ url_for('register') }}">Create your profile</a></div></section>
+{% endblock %}
