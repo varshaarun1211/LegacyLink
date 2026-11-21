@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block title %}Join LegacyLink{% endblock %}
+{% block content %}
+<section class="form-area"><div class="form-card wide">
+ <p class="eyebrow">Create your account</p><h1>Join the network</h1>
+ <p class="muted">Your registration will be reviewed before your profile appears in the directory.</p>
+ <p class="notice">Fields marked * are required.</p>
+ <form data-api-form="/api/register" data-success="Thanks for registering. Your account is pending verification." novalidate>
+  <div class="form-grid">
+   <label>Full name *<input name="name" autocomplete="name" required minlength="2"><small class="field-error" data-error-for="name"></small></label>
+   <label>Email address *<input name="email" type="email" autocomplete="email" required><small class="field-error" data-error-for="email"></small></label>
+   <label>Password *<input name="password" type="password" autocomplete="new-password" minlength="8" required><small class="help">At least 8 characters.</small><small class="field-error" data-error-for="password"></small></label>
+   <label>Department *<input name="department" required><small class="field-error" data-error-for="department"></small></label>
+   <label>Degree *<input name="degree" required><small class="field-error" data-error-for="degree"></small></label>
+   <label>Graduation year *<input name="graduation_year" type="number" min="1950" max="2100" required><small class="field-error" data-error-for="graduation_year"></small></label>
+   <label>Occupation (optional)<input name="occupation"></label>
+   <label>Company (optional)<input name="company"></label>
+   <label class="full">Skills (optional)<input name="skills" placeholder="For example: design, research, finance"></label>
+   <label class="full">Short bio (optional)<textarea name="bio" rows="4" maxlength="500"></textarea></label>
+  </div>
+  <button class="button" type="submit">Create account</button><p class="form-status" role="status" aria-live="polite"></p>
+ </form>
+ <p class="center muted">Already registered? <a href="{{ url_for('login') }}">Log in</a></p>
+</div></section>
+{% endblock %}

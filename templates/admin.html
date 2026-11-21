@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Admin review | LegacyLink{% endblock %}
+{% block content %}
+<section class="page-head"><div class="container"><p class="eyebrow">Administration</p><h1>Registration review</h1><p class="lead">Review pending alumni registrations. Flask must enforce admin access to this page and each action.</p></div></section>
+<section class="section soft"><div class="container">
+ <p class="warning"><b>Backend authorization required.</b> This page is not protected by itself. Do not deploy admin actions until Flask checks the admin role.</p>
+ <article class="review" data-review-id="101"><div><p class="eyebrow">Pending registration</p><h2>Sam Example</h2><p>Environmental Science · Class of 2020</p><p>sam.example@example.test</p></div><div class="actions"><button class="button button-small" data-review-action="approve">Approve</button><button class="button button-small danger" data-review-action="reject">Reject</button></div></article>
+ <p class="demo">This applicant is fictional. Replace the example with the admin-only pending registrations API.</p><p id="admin-status" class="form-status" role="status" aria-live="polite"></p>
+</div></section>
+{% endblock %}

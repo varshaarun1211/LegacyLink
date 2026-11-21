@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Alumni directory | LegacyLink{% endblock %}
+{% block content %}
+<section class="page-head"><div class="container"><p class="eyebrow">Find your people</p><h1>Alumni directory</h1><p class="lead">Discover alumni by name, department, graduation year, or company.</p></div></section>
+<section class="section soft"><div class="container">
+ <form id="directory-filters" class="filters">
+  <label>Search name<input name="q" type="search" placeholder="Try a name"></label>
+  <label>Department<input name="department" placeholder="Any department"></label>
+  <label>Graduation year<input name="graduation_year" placeholder="Any year"></label>
+  <label>Company<input name="company" placeholder="Any company"></label>
+  <button class="button" type="submit">Search</button>
+ </form>
+ <p class="demo">The following people are fictional demo profiles. Replace these cards with approved, visible records from Flask.</p>
+ <div class="grid three" id="directory-results">
+  <article class="person" data-name="maya rao" data-department="computer science" data-year="2021" data-company="northstar labs"><div class="avatar coral-bg">MR</div><p class="eyebrow">Computer Science · 2021</p><h2>Maya Rao</h2><p>Product designer at Northstar Labs</p><a class="text-link" href="{{ url_for('profile', profile_id=1) }}">View profile →</a></article>
+  <article class="person" data-name="arjun mehta" data-department="economics" data-year="2018" data-company="common ground"><div class="avatar blue-bg">AM</div><p class="eyebrow">Economics · 2018</p><h2>Arjun Mehta</h2><p>Policy analyst at Common Ground</p><a class="text-link" href="{{ url_for('profile', profile_id=2) }}">View profile →</a></article>
+  <article class="person" data-name="leena fernandes" data-department="biology" data-year="2023" data-company="fieldnote health"><div class="avatar green-bg">LF</div><p class="eyebrow">Biology · 2023</p><h2>Leena Fernandes</h2><p>Research associate at Fieldnote Health</p><a class="text-link" href="{{ url_for('profile', profile_id=3) }}">View profile →</a></article>
+ </div>
+ <p class="empty" id="directory-empty" hidden>No alumni match those filters. Try a broader search.</p>
+</div></section>
+{% endblock %}

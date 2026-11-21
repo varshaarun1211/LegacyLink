@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}Your dashboard | LegacyLink{% endblock %}
+{% block content %}
+<section class="page-head"><div class="container"><p class="eyebrow">Your LegacyLink</p><h1>Your community is waiting.</h1><p class="lead">This is a sample dashboard. Connect it to the signed-in user's backend profile.</p></div></section>
+<section class="section soft"><div class="container grid three">
+ <article class="card"><p class="eyebrow">Profile status</p><h2>Pending verification</h2><p>Status shown is sample content. Load the real status from Flask.</p><span class="pill">Pending</span></article>
+ <article class="card"><p class="eyebrow">Your profile</p><h2>Make it yours</h2><p>Add your experience, interests, and ways you'd like to connect.</p><a class="button button-secondary" href="{{ url_for('profile', profile_id=1) }}">View profile</a></article>
+ <article class="card"><p class="eyebrow">Find your people</p><h2>Explore directory</h2><p>Discover fellow alumni and shared interests.</p><a class="button button-secondary" href="{{ url_for('directory') }}">Browse alumni</a></article>
+</div></section>
+{% endblock %}
