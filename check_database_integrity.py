@@ -1,15 +1,33 @@
 
+
 from app import app
 from models import db
 from models.user import User
 from models.alumni import Alumni
 from sqlalchemy import func, text
 
+
 with app.app_context():
 
-    print("\n===== DATABASE INTEGRITY CHECK =====")
+    database_path = db.engine.url.database
 
-    # 1. Check duplicate alumni
+    print("\n===== DATABASE INTEGRITY CHECK =====")
+    print(f"Database: {database_path}")
+
+    # 1. Check that required tables exist
+    inspector = db.inspect(db.engine)
+    tables = inspector.get_table_names()
+
+    print("\nRequired tables:")
+    for table in ["users", "alumni"]:
+        print(f"{table}: {'Found' if table in tables else 'MISSING'}")
+
+    if not {"users", "alumni"}.issubset(tables):
+        raise RuntimeError(
+            "Required tables are missing. Check the database configuration."
+        )
+
+    # 2. Check duplicate alumni
     duplicates = (
         db.session.query(
             Alumni.full_name,
@@ -29,7 +47,7 @@ with app.app_context():
     print("\n1. Duplicate alumni:")
     print(duplicates if duplicates else "None found!")
 
-    # 2. Check duplicate user emails
+    # 3. Check duplicate user emails
     duplicate_emails = (
         db.session.query(
             User.email,
@@ -43,9 +61,7 @@ with app.app_context():
     print("\n2. Duplicate user emails:")
     print(duplicate_emails if duplicate_emails else "None found!")
 
-    # 3. Check foreign-key integrity
-    db.session.execute(text("PRAGMA foreign_keys=ON"))
-
+    # 4. Check foreign-key integrity
     violations = db.session.execute(
         text("PRAGMA foreign_key_check")
     ).fetchall()
@@ -53,7 +69,7 @@ with app.app_context():
     print("\n3. Foreign-key violations:")
     print(violations if violations else "None found!")
 
-    # 4. Check orphaned alumni
+    # 5. Check orphaned alumni
     orphaned = []
 
     for alumni in Alumni.query.filter(
@@ -67,4 +83,3 @@ with app.app_context():
     print(orphaned if orphaned else "None found!")
 
     print("\n===== CHECK COMPLETED =====")
-
