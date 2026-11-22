@@ -1,9 +1,9 @@
 
-
 from app import app
 from models import db
 from models.user import User
 from models.alumni import Alumni
+from models.mentorship import Mentorship
 from sqlalchemy import func, text
 
 
@@ -18,11 +18,13 @@ with app.app_context():
     inspector = db.inspect(db.engine)
     tables = inspector.get_table_names()
 
+    required_tables = {"users", "alumni", "mentorships"}
+
     print("\nRequired tables:")
-    for table in ["users", "alumni"]:
+    for table in sorted(required_tables):
         print(f"{table}: {'Found' if table in tables else 'MISSING'}")
 
-    if not {"users", "alumni"}.issubset(tables):
+    if not required_tables.issubset(tables):
         raise RuntimeError(
             "Required tables are missing. Check the database configuration."
         )
@@ -81,5 +83,34 @@ with app.app_context():
 
     print("\n4. Orphaned alumni:")
     print(orphaned if orphaned else "None found!")
+
+    # 6. Check invalid mentorship references
+    invalid_mentorships = []
+
+    for request in Mentorship.query.all():
+        mentor_exists = db.session.get(Alumni, request.mentor_id)
+        mentee_exists = db.session.get(Alumni, request.mentee_id)
+
+        if mentor_exists is None or mentee_exists is None:
+            invalid_mentorships.append(request.id)
+
+    print("\n5. Invalid mentorship references:")
+    print(
+        invalid_mentorships
+        if invalid_mentorships
+        else "None found!"
+    )
+
+    # 7. Check mentorship requests where mentor and mentee are identical
+    self_requests = Mentorship.query.filter(
+        Mentorship.mentor_id == Mentorship.mentee_id
+    ).all()
+
+    print("\n6. Mentorship self-requests:")
+    print(
+        [request.id for request in self_requests]
+        if self_requests
+        else "None found!"
+    )
 
     print("\n===== CHECK COMPLETED =====")

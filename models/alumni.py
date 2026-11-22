@@ -33,9 +33,22 @@ class Alumni(db.Model):
 
     # Employment and additional information
     occupation = db.Column(db.String(150), nullable=True)
-    company = db.Column(db.String(150), nullable=True)
+    company = db.Column(db.String(150), nullable=True, index=True)
     skills = db.Column(db.Text, nullable=True)
     bio = db.Column(db.Text, nullable=True)
+
+    # Enhanced alumni profile information
+    linkedin_url = db.Column(db.String(255), nullable=True)
+    github_url = db.Column(db.String(255), nullable=True)
+    portfolio_url = db.Column(db.String(255), nullable=True)
+    career_interests = db.Column(db.Text, nullable=True)
+
+    # Mentorship availability
+    available_for_mentorship = db.Column(
+        db.Boolean,
+        default=False,
+        nullable=False
+    )
 
     # Alumni verification
     verification_status = db.Column(
@@ -90,10 +103,8 @@ class Alumni(db.Model):
         foreign_keys=[verified_by]
     )
 
-    # Validate graduation year
     @validates("graduation_year")
     def validate_graduation_year(self, key, year):
-
         if not isinstance(year, int) or isinstance(year, bool):
             raise ValueError("Graduation year must be a number.")
 
@@ -102,19 +113,15 @@ class Alumni(db.Model):
 
         return year
 
-    # Validate required text fields
     @validates("full_name", "department", "degree")
     def validate_required_fields(self, key, value):
-
         if not isinstance(value, str) or not value.strip():
             raise ValueError(f"{key} cannot be empty.")
 
         return value.strip()
 
-    # Validate verification status
     @validates("verification_status")
     def validate_verification_status(self, key, status):
-
         allowed_statuses = ["pending", "approved", "rejected"]
 
         if status not in allowed_statuses:

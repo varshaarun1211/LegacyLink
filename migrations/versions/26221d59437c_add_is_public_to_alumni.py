@@ -1,31 +1,18 @@
 
-"""Add is_public to alumni
+"""Legacy migration placeholder.
 
-Revision ID: 26221d59437c
-Revises: 133df062cf08
+The complete alumni schema is created by the repair migration.
 """
 
-from alembic import op
-import sqlalchemy as sa
-
-revision = '26221d59437c'
-down_revision = '133df062cf08'
+revision = "26221d59437c"
+down_revision = "133df062cf08"
 branch_labels = None
 depends_on = None
 
 
 def upgrade():
-    with op.batch_alter_table('alumni') as batch_op:
-        batch_op.add_column(
-            sa.Column(
-                'is_public',
-                sa.Boolean(),
-                nullable=False,
-                server_default=sa.true()
-            )
-        )
+    pass
 
 
 def downgrade():
-    with op.batch_alter_table('alumni') as batch_op:
-        batch_op.drop_column('is_public')
+    pass
