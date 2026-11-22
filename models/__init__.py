@@ -27,3 +27,4 @@ def enable_sqlite_foreign_keys(connection, connection_record):
 # Import models so they are available from the models package
 from .user import User
 from .alumni import Alumni
+from .mentorship import Mentorship

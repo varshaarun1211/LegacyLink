@@ -1,0 +1,5 @@
+full_name,department,degree,graduation_year,occupation,company,skills,bio
+Test Person,Computer Science,B.Tech,2022,Developer,ABC,Python,Valid test
+,Computer Science,B.Tech,2022,Developer,ABC,Python,Missing name
+Invalid Person,Computer Science,B.Tech,abcd,Developer,ABC,Python,Invalid year
+Another Person,Computer Science,B.Tech,2040,Developer,ABC,Python,Future year

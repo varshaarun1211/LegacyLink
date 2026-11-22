@@ -12,9 +12,9 @@ with app.app_context():
     if user:
         print("User:", user.email)
 
-        if user.alumni_profile:
-            print("Alumni:", user.alumni_profile.full_name)
-            print("Department:", user.alumni_profile.department)
+        if user.alumni:
+            print("Alumni:", user.alumni.full_name)
+            print("Department:", user.alumni.department)
         else:
             print("No alumni profile found.")
 
