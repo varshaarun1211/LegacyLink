@@ -1,0 +1,55 @@
+
+{% extends "base.html" %}
+
+{% block title %}Mentorship Requests Sent | LegacyLink{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h1>Mentorship Requests Sent</h1>
+    <p>Track the mentorship requests you have sent.</p>
+
+    {% if requests_sent %}
+        {% for mentorship in requests_sent %}
+            <div class="panel">
+                <h3>{{ mentorship.mentor.full_name }}</h3>
+
+                <p>
+                    {{ mentorship.mentor.degree }}
+                    · {{ mentorship.mentor.department }}
+                    · {{ mentorship.mentor.graduation_year }}
+                </p>
+
+                <p><strong>Your message:</strong></p>
+                <p>{{ mentorship.message or "No message provided." }}</p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ mentorship.status|capitalize }}
+                </p>
+
+                <p>
+                    <strong>Requested:</strong>
+                    {{ mentorship.requested_at.strftime('%d %b %Y') }}
+                </p>
+
+                <a href="{{ url_for('alumni_profile', id=mentorship.mentor.id) }}">
+                    View mentor profile
+                </a>
+
+                {% if mentorship.status == "pending" %}
+                    <form method="POST"
+                          action="{{ url_for('mentorship_cancel', request_id=mentorship.id) }}">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <button type="submit" class="secondary">
+                            Cancel Request
+                        </button>
+                    </form>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You haven't sent any mentorship requests yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

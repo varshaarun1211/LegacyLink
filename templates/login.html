@@ -1,0 +1,29 @@
+
+{% extends "base.html" %}
+
+{% block title %}Login | LegacyLink{% endblock %}
+
+{% block content %}
+<div class="panel" style="max-width:480px;margin:auto">
+    <h1>Welcome Back</h1>
+    <p class="muted">Log in to your LegacyLink account.</p>
+
+    <form method="POST" action="{{ url_for('login') }}">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+        <label>Email Address</label>
+        <input type="email" name="email" required
+               placeholder="Enter your email">
+
+        <label>Password</label>
+        <input type="password" name="password" required
+               placeholder="Enter your password">
+
+        <button type="submit">Login</button>
+    </form>
+
+    <p>Don't have an account?
+        <a href="{{ url_for('register') }}">Register here</a>
+    </p>
+</div>
+{% endblock %}

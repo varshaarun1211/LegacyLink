@@ -1,0 +1,94 @@
+
+{% extends "base.html" %}
+
+{% block title %}Admin Verifications | LegacyLink{% endblock %}
+
+{% block content %}
+<h1>Alumni Verification</h1>
+<p class="muted">Review alumni registration requests.</p>
+
+<div class="panel actions">
+    <a class="button" href="{{ url_for('admin_verifications', status='pending') }}">
+        Pending
+    </a>
+
+    <a class="button secondary"
+       href="{{ url_for('admin_verifications', status='approved') }}">
+        Approved
+    </a>
+
+    <a class="button secondary"
+       href="{{ url_for('admin_verifications', status='rejected') }}">
+        Rejected
+    </a>
+</div>
+
+<h2>{{ status|capitalize }} Profiles</h2>
+
+{% for profile in profiles %}
+    <div class="panel">
+        <h3>{{ profile.full_name }}</h3>
+
+        <p><strong>Department:</strong> {{ profile.department }}</p>
+        <p><strong>Degree:</strong> {{ profile.degree }}</p>
+        <p><strong>Graduation year:</strong> {{ profile.graduation_year }}</p>
+
+        {% if profile.occupation %}
+            <p><strong>Occupation:</strong> {{ profile.occupation }}</p>
+        {% endif %}
+
+        {% if profile.company %}
+            <p><strong>Company:</strong> {{ profile.company }}</p>
+        {% endif %}
+
+        <p>
+            <strong>Status:</strong>
+            {{ profile.verification_status|capitalize }}
+        </p>
+
+        <div class="actions">
+            <a class="button"
+               href="{{ url_for('alumni_profile', id=profile.id) }}">
+                View Profile
+            </a>
+
+            {% if profile.verification_status != "approved" %}
+                <form method="POST"
+                      action="{{ url_for('admin_approve', id=profile.id) }}">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token() }}">
+                    <button type="submit">Approve</button>
+                </form>
+            {% endif %}
+
+            {% if profile.verification_status != "rejected" %}
+                <form method="POST"
+                      action="{{ url_for('admin_reject', id=profile.id) }}">
+                    <input type="hidden" name="csrf_token"
+                           value="{{ csrf_token() }}">
+                    <button type="submit" class="secondary">
+                        Reject
+                    </button>
+                </form>
+            {% endif %}
+
+            <form method="POST"
+                  action="{{ url_for('admin_toggle_visibility', id=profile.id) }}">
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+                <button type="submit" class="secondary">
+                    {% if profile.is_visible %}
+                        Hide Profile
+                    {% else %}
+                        Show Profile
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+{% else %}
+    <div class="panel">
+        <p>No {{ status }} profiles found.</p>
+    </div>
+{% endfor %}
+{% endblock %}

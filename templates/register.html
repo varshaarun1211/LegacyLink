@@ -1,0 +1,216 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register | LegacyLink</title>
+
+    <style>
+        :root {
+            --aqua: #d8f2f1;
+            --ink: #173c60;
+            --green: #5cc991;
+            --deep: #064b76;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            padding: 40px 16px;
+            background: var(--aqua);
+            color: var(--ink);
+            font-family: "Avenir Next", Avenir, "Segoe UI", Arial, sans-serif;
+        }
+
+        .container {
+            max-width: 650px;
+            margin: auto;
+            padding: 35px;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 5px 20px rgba(23, 60, 96, 0.10);
+        }
+
+        h1 {
+            margin-bottom: 8px;
+            text-align: center;
+            color: var(--deep);
+        }
+
+        .subtitle {
+            margin-bottom: 30px;
+            text-align: center;
+            color: #647b8d;
+        }
+
+        h2 {
+            margin-top: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--aqua);
+            color: var(--deep);
+            font-size: 19px;
+        }
+
+        label {
+            display: block;
+            margin: 17px 0 7px;
+            font-weight: 600;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #c8d9df;
+            border-radius: 7px;
+            font: inherit;
+        }
+
+        input:focus, textarea:focus {
+            outline: 2px solid var(--green);
+            border-color: var(--green);
+        }
+
+        textarea {
+            resize: vertical;
+        }
+
+        .required {
+            color: #c0392b;
+        }
+
+        button {
+            width: 100%;
+            margin-top: 28px;
+            padding: 14px;
+            border: none;
+            border-radius: 8px;
+            background: var(--deep);
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #08709c;
+        }
+
+        .message {
+            margin: 12px 0;
+            padding: 12px;
+            border-radius: 6px;
+            background: #fce8e6;
+            color: #9b2921;
+        }
+
+        .success {
+            background: #e2f5e9;
+            color: #226b40;
+        }
+
+        .login-link {
+            margin-top: 22px;
+            text-align: center;
+        }
+
+        a {
+            color: var(--deep);
+            font-weight: bold;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 24px 18px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <h1>Join LegacyLink</h1>
+        <p class="subtitle">
+            Connections that last. Legacies that grow.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {% if category == 'success' %}success{% endif %}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST" action="{{ url_for('register') }}">
+
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+
+            <h2>Account Details</h2>
+
+            <label>Email <span class="required">*</span></label>
+            <input type="email" name="email"
+                   value="{{ form.get('email', '') }}" required>
+
+            <label>Password <span class="required">*</span></label>
+            <input type="password" name="password"
+                   minlength="8" required>
+
+            <label>Confirm Password <span class="required">*</span></label>
+            <input type="password" name="confirm_password" required>
+
+            <h2>Alumni Details</h2>
+
+            <label>Full Name <span class="required">*</span></label>
+            <input type="text" name="full_name"
+                   value="{{ form.get('full_name', '') }}" required>
+
+            <label>Department <span class="required">*</span></label>
+            <input type="text" name="department"
+                   value="{{ form.get('department', '') }}" required>
+
+            <label>Degree <span class="required">*</span></label>
+            <input type="text" name="degree"
+                   value="{{ form.get('degree', '') }}" required>
+
+            <label>Graduation Year <span class="required">*</span></label>
+            <input type="number" name="graduation_year"
+                   min="1900" value="{{ form.get('graduation_year', '') }}"
+                   required>
+
+            <h2>Professional Details (Optional)</h2>
+
+            <label>Current Occupation</label>
+            <input type="text" name="occupation"
+                   value="{{ form.get('occupation', '') }}">
+
+            <label>Company</label>
+            <input type="text" name="company"
+                   value="{{ form.get('company', '') }}">
+
+            <label>Skills</label>
+            <textarea name="skills" rows="3">{{ form.get('skills', '') }}</textarea>
+
+            <label>Short Bio</label>
+            <textarea name="bio" rows="4">{{ form.get('bio', '') }}</textarea>
+
+            <button type="submit">Submit Registration</button>
+
+        </form>
+
+        <p class="login-link">
+            Already have an account?
+            <a href="{{ url_for('login') }}">Log in</a>
+        </p>
+
+        <p class="login-link">
+            <a href="{{ url_for('index') }}">Back to Home</a>
+        </p>
+
+    </div>
+</body>
+</html>

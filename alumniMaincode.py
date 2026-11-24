@@ -13,7 +13,7 @@ from flask_wtf.csrf import CSRFProtect
 from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
-from models import Alumni, User, db, utcnow
+from models import Alumni, Mentorship, User, db, utcnow
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 PER_PAGE = 12
@@ -209,7 +209,7 @@ def register_routes(app):
             page=page, per_page=PER_PAGE, error_out=False
         )
 
-        public = Alumni.query.filter_by(verification_status="approved", is_visible=True)
+        public = Alumni.query.filter_by(verification_status="approved",is_visible=True,is_public=True)
         departments = [d for (d,) in public.with_entities(Alumni.department).distinct().order_by(Alumni.department)]
         years = [y for (y,) in public.with_entities(Alumni.graduation_year).distinct().order_by(Alumni.graduation_year.desc())]
 
@@ -305,6 +305,176 @@ def register_routes(app):
         db.session.commit()
         flash("Visibility updated.", "success")
         return redirect(request.referrer or url_for("admin_verifications"))
+        # ---------------- MENTORSHIP ----------------
+
+    @app.route("/profile/mentorship-availability", methods=["POST"])
+    @login_required
+    def mentorship_availability():
+        profile = current_user.alumni
+
+        if profile is None:
+            abort(404)
+
+        enabled = request.form.get("available_for_mentorship") == "on"
+
+        if enabled and profile.verification_status != "approved":
+            flash("Your alumni profile must be approved before you can offer mentorship.", "warning")
+            return redirect(url_for("alumni_profile", id=profile.id))
+
+        profile.available_for_mentorship = enabled
+        db.session.commit()
+
+        flash("Mentorship availability updated.", "success")
+        return redirect(url_for("alumni_profile", id=profile.id))
+
+
+    @app.route("/mentorship/request/<int:mentor_id>", methods=["POST"])
+    @login_required
+    def mentorship_request(mentor_id):
+        mentee = current_user.alumni
+
+        if mentee is None:
+            abort(404)
+
+        if mentee.verification_status != "approved":
+            abort(403)
+
+        mentor = db.get_or_404(Alumni, mentor_id)
+
+        if mentor.id == mentee.id:
+            flash("You cannot request mentorship from yourself.", "warning")
+            return redirect(url_for("alumni_profile", id=mentor.id))
+
+        if (
+            mentor.verification_status != "approved"
+            or not mentor.available_for_mentorship
+            or not mentor.is_visible
+            or not mentor.is_public
+            or mentor.user_id is None
+        ):
+            abort(404)
+
+        existing = Mentorship.query.filter(
+            Mentorship.mentor_id == mentor.id,
+            Mentorship.mentee_id == mentee.id,
+            Mentorship.status.in_(["pending", "accepted"])
+        ).first()
+
+        if existing:
+            flash("You already have an active request with this alumnus.", "info")
+            return redirect(url_for("alumni_profile", id=mentor.id))
+
+        message = clean(request.form.get("message"), 2000)
+
+        mentorship = Mentorship(
+            mentor_id=mentor.id,
+            mentee_id=mentee.id,
+            message=message or None,
+            status="pending"
+        )
+
+        db.session.add(mentorship)
+        db.session.commit()
+
+        flash("Mentorship request sent.", "success")
+        return redirect(url_for("alumni_profile", id=mentor.id))
+
+
+    @app.route("/mentorship/received")
+    @login_required
+    def mentorship_received():
+        profile = current_user.alumni
+
+        if profile is None:
+            abort(404)
+
+        requests_received = (
+            Mentorship.query
+            .filter_by(mentor_id=profile.id)
+            .order_by(Mentorship.requested_at.desc())
+            .all()
+        )
+
+        return render_template(
+            "mentorship_received.html",
+            requests_received=requests_received
+        )
+
+
+    @app.route("/mentorship/sent")
+    @login_required
+    def mentorship_sent():
+        profile = current_user.alumni
+
+        if profile is None:
+            abort(404)
+
+        requests_sent = (
+            Mentorship.query
+            .filter_by(mentee_id=profile.id)
+            .order_by(Mentorship.requested_at.desc())
+            .all()
+        )
+
+        return render_template(
+            "mentorship_sent.html",
+            requests_sent=requests_sent
+        )
+
+
+    @app.route("/mentorship/<int:request_id>/respond", methods=["POST"])
+    @login_required
+    def mentorship_respond(request_id):
+        profile = current_user.alumni
+
+        if profile is None:
+            abort(404)
+
+        mentorship = db.get_or_404(Mentorship, request_id)
+
+        # Only the intended mentor can respond.
+        if mentorship.mentor_id != profile.id:
+            abort(403)
+
+        if mentorship.status != "pending":
+            flash("This request has already been processed.", "warning")
+            return redirect(url_for("mentorship_received"))
+
+        action = request.form.get("action")
+
+        if action not in ("accept", "reject"):
+            abort(400)
+
+        mentorship.status = "accepted" if action == "accept" else "rejected"
+        db.session.commit()
+
+        flash(f"Mentorship request {mentorship.status}.", "success")
+        return redirect(url_for("mentorship_received"))
+
+
+    @app.route("/mentorship/<int:request_id>/cancel", methods=["POST"])
+    @login_required
+    def mentorship_cancel(request_id):
+        profile = current_user.alumni
+
+        if profile is None:
+            abort(404)
+
+        mentorship = db.get_or_404(Mentorship, request_id)
+
+        # Only the person who sent the request can cancel it.
+        if mentorship.mentee_id != profile.id:
+            abort(403)
+
+        if mentorship.status != "pending":
+            flash("Only pending requests can be cancelled.", "warning")
+            return redirect(url_for("mentorship_sent"))
+
+        db.session.delete(mentorship)
+        db.session.commit()
+
+        flash("Mentorship request cancelled.", "success")
+        return redirect(url_for("mentorship_sent"))
 
     @app.errorhandler(403)
     def forbidden(_e):

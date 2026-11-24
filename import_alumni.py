@@ -1,30 +1,39 @@
 
 import csv
+from pathlib import Path
+from datetime import datetime
 
 from app import app
 from models import db
 from models.alumni import Alumni
 
 
+CSV_FILE = Path(__file__).resolve().parent / "sample_alumni.csv"
+
 with app.app_context():
 
     imported_count = 0
     skipped_count = 0
 
-    with open("sample_alumni.csv", "r", encoding="utf-8") as file:
+    required_fields = [
+        "full_name",
+        "department",
+        "degree",
+        "graduation_year"
+    ]
+
+    with open(CSV_FILE, "r", encoding="utf-8-sig", newline="") as file:
 
         reader = csv.DictReader(file)
 
-        required_fields = [
-            "full_name",
-            "department",
-            "degree",
-            "graduation_year"
-        ]
+        if not reader.fieldnames or not all(
+            field in reader.fieldnames for field in required_fields
+        ):
+            raise ValueError("CSV is missing one or more required columns.")
 
         for row_number, row in enumerate(reader, start=2):
 
-            # Check for missing required fields
+            # Check required fields
             if any(
                 not row.get(field) or not row[field].strip()
                 for field in required_fields
@@ -41,7 +50,7 @@ with app.app_context():
                 skipped_count += 1
                 continue
 
-            if graduation_year < 1950 or graduation_year > 2026:
+            if graduation_year < 1950 or graduation_year > datetime.now().year:
                 print(f"Row {row_number}: Graduation year out of range. Skipped.")
                 skipped_count += 1
                 continue
@@ -49,7 +58,7 @@ with app.app_context():
             full_name = row["full_name"].strip()
             department = row["department"].strip()
 
-            # Check for duplicate records
+            # Check for existing records
             existing_alumni = Alumni.query.filter_by(
                 full_name=full_name,
                 department=department,
@@ -61,7 +70,7 @@ with app.app_context():
                 skipped_count += 1
                 continue
 
-            # Create alumni record
+            # Create alumni profile
             alumni = Alumni(
                 full_name=full_name,
                 department=department,
@@ -78,7 +87,11 @@ with app.app_context():
             db.session.add(alumni)
             imported_count += 1
 
-        db.session.commit()
+        try:
+            db.session.commit()
+        except Exception:
+            db.session.rollback()
+            raise
 
     print("\n===== IMPORT SUMMARY =====")
     print(f"Successfully imported: {imported_count}")

@@ -1,0 +1,92 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ profile.full_name }} | LegacyLink{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h1>{{ profile.full_name }}</h1>
+    <p class="muted">{{ profile.degree }} — {{ profile.department }}</p>
+    <p><strong>Graduation year:</strong> {{ profile.graduation_year }}</p>
+
+    {% if profile.occupation %}
+        <p><strong>Occupation:</strong> {{ profile.occupation }}</p>
+    {% endif %}
+
+    {% if profile.company %}
+        <p><strong>Company:</strong> {{ profile.company }}</p>
+    {% endif %}
+
+    {% if profile.skills %}
+        <p><strong>Skills:</strong> {{ profile.skills }}</p>
+    {% endif %}
+
+    {% if profile.bio %}
+        <h3>About</h3>
+        <p>{{ profile.bio }}</p>
+    {% endif %}
+
+    <p>
+        <strong>Verification status:</strong>
+        {{ profile.verification_status|capitalize }}
+    </p>
+
+    {% if is_owner %}
+        <div class="actions">
+            <a class="button" href="{{ url_for('edit_profile') }}">
+                Edit Profile
+            </a>
+        </div>
+
+        <hr>
+
+        <h3>Mentorship Availability</h3>
+        <p>
+            Current status:
+            {% if profile.available_for_mentorship %}
+                Available
+            {% else %}
+                Not available
+            {% endif %}
+        </p>
+
+        <form method="POST"
+              action="{{ url_for('mentorship_availability') }}">
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <label>
+                <input type="checkbox"
+                       name="available_for_mentorship"
+                       style="width:auto"
+                       {% if profile.available_for_mentorship %}checked{% endif %}>
+                I am available to mentor other alumni
+            </label>
+
+            <br><br>
+            <button type="submit">Update Availability</button>
+        </form>
+    {% endif %}
+
+    {% if current_user.is_authenticated
+          and not is_owner
+          and profile.available_for_mentorship
+          and profile.verification_status == "approved" %}
+        <hr>
+        <h3>Request Mentorship</h3>
+
+        <form method="POST"
+              action="{{ url_for('mentorship_request', mentor_id=profile.id) }}">
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <label>Message (optional)</label>
+            <textarea name="message" rows="4"
+                      maxlength="2000"
+                      placeholder="Introduce yourself and explain what guidance you're looking for."></textarea>
+
+            <button type="submit">Send Mentorship Request</button>
+        </form>
+    {% endif %}
+</div>
+{% endblock %}

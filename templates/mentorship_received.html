@@ -1,0 +1,66 @@
+
+{% extends "base.html" %}
+
+{% block title %}Mentorship Requests Received | LegacyLink{% endblock %}
+
+{% block content %}
+<div class="panel">
+    <h1>Mentorship Requests Received</h1>
+    <p>View and respond to requests from fellow alumni.</p>
+
+    {% if requests_received %}
+        {% for mentorship in requests_received %}
+            <div class="panel">
+                <h3>{{ mentorship.mentee.full_name }}</h3>
+
+                <p>
+                    {{ mentorship.mentee.degree }}
+                    · {{ mentorship.mentee.department }}
+                    · {{ mentorship.mentee.graduation_year }}
+                </p>
+
+                <p><strong>Message:</strong></p>
+                <p>{{ mentorship.message or "No message provided." }}</p>
+
+                <p>
+                    <strong>Status:</strong>
+                    {{ mentorship.status|capitalize }}
+                </p>
+
+                <p>
+                    <strong>Requested:</strong>
+                    {{ mentorship.requested_at.strftime('%d %b %Y') }}
+                </p>
+
+                <a href="{{ url_for('alumni_profile', id=mentorship.mentee.id) }}">
+                    View mentee profile
+                </a>
+
+                {% if mentorship.status == "pending" %}
+                    <div class="actions">
+                        <form method="POST"
+                              action="{{ url_for('mentorship_respond', request_id=mentorship.id) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <input type="hidden" name="action" value="accept">
+                            <button type="submit">Accept</button>
+                        </form>
+
+                        <form method="POST"
+                              action="{{ url_for('mentorship_respond', request_id=mentorship.id) }}">
+                            <input type="hidden" name="csrf_token"
+                                   value="{{ csrf_token() }}">
+                            <input type="hidden" name="action" value="reject">
+                            <button type="submit" class="secondary">
+                                Reject
+                            </button>
+                        </form>
+                    </div>
+                {% endif %}
+            </div>
+        {% endfor %}
+    {% else %}
+        <p>You haven't received any mentorship requests yet.</p>
+    {% endif %}
+</div>
+{% endblock %}
