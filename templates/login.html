@@ -1,29 +1,13 @@
-
 {% extends "base.html" %}
-
-{% block title %}Login | LegacyLink{% endblock %}
-
+{% block title %}Log in | LegacyLink{% endblock %}
 {% block content %}
-<div class="panel" style="max-width:480px;margin:auto">
-    <h1>Welcome Back</h1>
-    <p class="muted">Log in to your LegacyLink account.</p>
-
-    <form method="POST" action="{{ url_for('login') }}">
-        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
-
-        <label>Email Address</label>
-        <input type="email" name="email" required
-               placeholder="Enter your email">
-
-        <label>Password</label>
-        <input type="password" name="password" required
-               placeholder="Enter your password">
-
-        <button type="submit">Login</button>
-    </form>
-
-    <p>Don't have an account?
-        <a href="{{ url_for('register') }}">Register here</a>
-    </p>
-</div>
+<section class="form-area"><div class="form-card">
+ <p class="eyebrow">Welcome back</p><h1>Log in to LegacyLink</h1><p class="muted">Sign in to continue connecting with your alumni community.</p>
+ <form data-api-form="/api/login" data-success="Signed in successfully." novalidate>
+  <label>Email address<input name="email" type="email" autocomplete="email" required><small class="field-error" data-error-for="email"></small></label>
+  <label>Password<input name="password" type="password" autocomplete="current-password" required><small class="field-error" data-error-for="password"></small></label>
+  <button class="button full-button" type="submit">Log in</button><p class="form-status" role="status" aria-live="polite"></p>
+ </form>
+ <p class="center muted">New to LegacyLink? <a href="{{ url_for('register') }}">Create an account</a></p>
+</div></section>
 {% endblock %}
