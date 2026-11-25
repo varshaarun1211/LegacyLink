@@ -20,6 +20,3 @@ migrate = Migrate(app, db, compare_type=True)
 
 if __name__ == "__main__":
     app.run(debug=True)
-
-with app.app_context():
-    db.create_all()
