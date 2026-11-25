@@ -1,0 +1,5 @@
+{% extends "base.html" %}
+{% block title %}{{ code }} | LegacyLink{% endblock %}
+{% block content %}
+<section class="page-head"><div class="container"><p class="eyebrow">LegacyLink</p><h1>{{ code }}</h1><p class="lead">{{ message }}</p><a class="button" href="{{ url_for('index') }}">Return home</a></div></section>
+{% endblock %}

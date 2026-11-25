@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% block title %}Alumni review | LegacyLink{% endblock %}
+{% block content %}
+<section class="page-head"><div class="container"><p class="eyebrow">Administration</p><h1>Alumni verification</h1><p class="lead">Review registrations and manage alumni profile visibility.</p></div></section>
+<section class="section soft"><div class="container">
+  <nav class="status-tabs" aria-label="Filter profiles by status">
+    {% for option in ["pending", "approved", "rejected"] %}
+      <a class="button button-small {% if status == option %}current{% else %}button-secondary{% endif %}" href="{{ url_for('admin_verifications', status=option) }}">{{ option|capitalize }}</a>
+    {% endfor %}
+  </nav>
+  <div class="review-list">
+    {% for profile in profiles %}
+      <article class="review"><div>
+        <p class="eyebrow">{{ profile.verification_status|capitalize }} registration</p>
+        <h2>{{ profile.full_name }}</h2>
+        <p>{{ profile.department }} · {{ profile.degree }} · Class of {{ profile.graduation_year }}</p>
+        {% if profile.occupation or profile.company %}<p>{{ profile.occupation or "Alumni" }}{% if profile.company %} at {{ profile.company }}{% endif %}</p>{% endif %}
+        {% if profile.user %}<p class="muted">{{ profile.user.email }}</p>{% endif %}
+        <p class="muted">Directory visibility: {% if profile.is_visible and profile.is_public %}Visible{% else %}Hidden{% endif %}</p>
+      </div><div class="actions">
+        {% if status == "pending" %}
+          <form method="post" action="{{ url_for('admin_approve', id=profile.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-small" type="submit">Approve</button></form>
+          <form method="post" action="{{ url_for('admin_reject', id=profile.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-small danger" type="submit">Reject</button></form>
+        {% else %}
+          <form method="post" action="{{ url_for('admin_toggle_visibility', id=profile.id) }}"><input type="hidden" name="csrf_token" value="{{ csrf_token() }}"><button class="button button-small button-secondary" type="submit">{% if profile.is_visible %}Hide profile{% else %}Show profile{% endif %}</button></form>
+        {% endif %}
+      </div></article>
+    {% else %}
+      <p class="empty">There are no {{ status }} profiles to show.</p>
+    {% endfor %}
+  </div>
+</div></section>
+{% endblock %}

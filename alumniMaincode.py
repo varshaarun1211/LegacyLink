@@ -103,11 +103,19 @@ def register_routes(app):
     @app.route("/")
     def index():
         return render_template("index.html")
+
+    @app.route("/dashboard")
+    @login_required
+    def dashboard():
+        profile = current_user.alumni
+        if profile is None:
+            abort(404)
+        return render_template("dashboard.html", profile=profile)
     
     @app.route("/register", methods=["GET", "POST"])
     def register():
         if current_user.is_authenticated:
-            return redirect(url_for("alumni_directory"))
+            return redirect(url_for("dashboard"))
         if request.method == "GET":
             return render_template("register.html", form={})
 
@@ -166,7 +174,7 @@ def register_routes(app):
     @app.route("/login", methods=["GET", "POST"])
     def login():
         if current_user.is_authenticated:
-            return redirect(url_for("alumni_directory"))
+            return redirect(url_for("dashboard"))
         if request.method == "GET":
             return render_template("login.html")
 
@@ -181,7 +189,7 @@ def register_routes(app):
 
         login_user(user)
         nxt = request.args.get("next")
-        return redirect(nxt if is_safe_next(nxt) else url_for("alumni_directory"))
+        return redirect(nxt if is_safe_next(nxt) else url_for("dashboard"))
 
     @app.route("/logout", methods=["POST"])
     @login_required

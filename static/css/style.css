@@ -61,3 +61,19 @@ textarea { resize:vertical; }.form-grid { display:grid; grid-template-columns:1f
 @media(max-width:850px) { .hero-grid { gap:18px; }.three { grid-template-columns:repeat(2,1fr); }.filters { grid-template-columns:repeat(2,1fr); }.filters label:first-child { grid-column:1/-1; } }
 @media(max-width:650px) { .container { width:min(100% - 32px,520px); }.menu-toggle { display:block; }.nav { display:none; position:absolute; top:65px; left:0; right:0; padding:18px 22px; align-items:stretch; flex-direction:column; background:var(--paper); border-bottom:1px solid var(--line); }.nav.nav-open { display:flex; }.hero { padding:50px 0; }.hero-grid,.about { grid-template-columns:1fr; }.hero-art { min-height:290px; }.bubble-one { left:0; }.bubble-two { left:25%; }.bubble-three { right:0; }.section { padding:58px 0; }.three { grid-template-columns:1fr; }.about { gap:30px; }.cta-inner,.review { align-items:flex-start; flex-direction:column; }.form-card { padding:26px 20px; }.form-grid { grid-template-columns:1fr; }.full { grid-column:auto; }.filters { grid-template-columns:1fr; }.filters label:first-child { grid-column:auto; }.profile { grid-template-columns:1fr; }.footer-inner { align-items:flex-start; flex-direction:column; } }
 @media(prefers-reduced-motion:reduce) { html { scroll-behavior:auto; } * { transition-duration:.01ms !important; } }
+
+/* Authenticated navigation, form feedback, and account controls */
+.nav-logout { margin: 0; }
+.nav-link-button { padding: 6px 0; border: 0; color: var(--ink); background: transparent; font-weight: 650; cursor: pointer; }
+.nav-link-button:hover { color: var(--blue); }
+.flash-list { padding-top: 12px; }
+.flash { margin: 10px 0; padding: 12px 15px; border-radius: 8px; }
+.flash-success, .flash-info { color: #225c3d; background: #e2f3e9; }
+.flash-warning { color: #694b12; background: #fff3cf; }
+.flash-danger, .flash-error { color: #8b2626; background: #fde8e7; }
+select { width: 100%; min-height: 44px; padding: 9px 11px; color: var(--ink); border: 1px solid #d7d6d0; border-radius: 7px; background: white; }
+.check-row { display: flex; align-items: flex-start; gap: 10px; font-weight: 500; }
+.check-row input { width: auto; min-height: auto; margin-top: .3em; }
+.status-tabs { display: flex; flex-wrap: wrap; gap: 9px; margin-bottom: 20px; }
+.status-tabs .current { background: var(--navy); border-color: var(--navy); }
+.actions form { margin: 0; }

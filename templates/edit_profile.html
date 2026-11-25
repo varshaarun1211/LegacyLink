@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Edit profile | LegacyLink{% endblock %}
+{% block content %}
+<section class="form-area">
+  <div class="form-card wide">
+    <p class="eyebrow">Your account</p>
+    <h1>Edit profile</h1>
+    <p class="muted">Changes to your name, department, degree, or graduation year may send an approved profile back for verification.</p>
+    <form method="post" action="{{ url_for('edit_profile') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <div class="form-grid">
+        <label>Full name *<input name="full_name" required maxlength="150" value="{{ profile.full_name }}"></label>
+        <label>Department *<input name="department" required maxlength="120" value="{{ profile.department }}"></label>
+        <label>Degree *<input name="degree" required maxlength="120" value="{{ profile.degree }}"></label>
+        <label>Graduation year *<input name="graduation_year" type="number" min="1900" required value="{{ profile.graduation_year }}"></label>
+        <label>Occupation<input name="occupation" maxlength="150" value="{{ profile.occupation or '' }}"></label>
+        <label>Company<input name="company" maxlength="150" value="{{ profile.company or '' }}"></label>
+        <label class="full">Skills<textarea name="skills" rows="3" maxlength="1000">{{ profile.skills or '' }}</textarea></label>
+        <label class="full">Bio<textarea name="bio" rows="4" maxlength="2000">{{ profile.bio or '' }}</textarea></label>
+      </div>
+      <label class="check-row"><input name="is_visible" type="checkbox" {% if profile.is_visible %}checked{% endif %}> Show my profile in the alumni directory when it is approved</label>
+      <button class="button" type="submit">Save changes</button>
+      <a class="button button-secondary" href="{{ url_for('alumni_profile', id=profile.id) }}">Cancel</a>
+    </form>
+  </div>
+</section>
+{% endblock %}

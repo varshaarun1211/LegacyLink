@@ -12,20 +12,40 @@
 <a class="skip-link" href="#main">Skip to content</a>
 <header class="site-header">
   <div class="container nav-wrap">
-    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">L</span> LegacyLink</a>
+    <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark" aria-hidden="true">L</span> LegacyLink</a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
     <nav id="nav" class="nav" aria-label="Main navigation">
       <a href="{{ url_for('index') }}#how-it-works">How it works</a>
       <a href="{{ url_for('alumni_directory') }}">Alumni directory</a>
-      <a href="{{ url_for('login') }}">Log in</a>
-      <a class="button button-small" href="{{ url_for('register') }}">Join the network</a>
+      {% if current_user.is_authenticated %}
+        <a href="{{ url_for('dashboard') }}">Dashboard</a>
+        {% if current_user.is_admin %}
+          <a href="{{ url_for('admin_verifications') }}">Admin review</a>
+        {% endif %}
+        <form class="nav-logout" method="post" action="{{ url_for('logout') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button class="nav-link-button" type="submit">Log out</button>
+        </form>
+      {% else %}
+        <a href="{{ url_for('login') }}">Log in</a>
+        <a class="button button-small" href="{{ url_for('register') }}">Join the network</a>
+      {% endif %}
     </nav>
   </div>
 </header>
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+    <div class="container flash-list" role="status" aria-live="polite">
+      {% for category, message in messages %}
+        <div class="flash flash-{{ category }}">{{ message }}</div>
+      {% endfor %}
+    </div>
+  {% endif %}
+{% endwith %}
 <main id="main">{% block content %}{% endblock %}</main>
 <footer class="footer">
   <div class="container footer-inner">
-    <a class="brand brand-light" href="{{ url_for('index') }}"><span class="brand-mark">L</span> LegacyLink</a>
+    <a class="brand brand-light" href="{{ url_for('index') }}"><span class="brand-mark" aria-hidden="true">L</span> LegacyLink</a>
     <p>Connections that last. Legacies that grow.</p>
     <small>A community for alumni to reconnect, share, and support one another.</small>
   </div>
