@@ -4,6 +4,7 @@ import re
 from datetime import datetime
 from functools import wraps
 from urllib.parse import urlparse
+from flask_migrate import Migrate
 
 import click
 from flask import (
@@ -17,6 +18,8 @@ from sqlalchemy import func
 from sqlalchemy.exc import IntegrityError
 
 from models import Alumni, Mentorship, User, db, utcnow
+from routes.opportunity_routes import opportunity_bp
+
 
 EMAIL_RE = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 PER_PAGE = 12
@@ -39,6 +42,7 @@ def create_app():
     )
 
     db.init_app(app)
+    Migrate(app, db)
     csrf.init_app(app)
     login_manager.init_app(app)
     login_manager.login_view = "login"
@@ -127,6 +131,9 @@ def validate_profile_fields(form):
 
 
 def register_routes(app):
+
+    # Register the opportunity feature routes.
+    app.register_blueprint(opportunity_bp)
 
     @app.context_processor
     def inject_notification_counts():

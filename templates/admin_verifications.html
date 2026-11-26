@@ -4,91 +4,145 @@
 {% block title %}Admin Verifications | LegacyLink{% endblock %}
 
 {% block content %}
-<h1>Alumni Verification</h1>
-<p class="muted">Review alumni registration requests.</p>
 
-<div class="panel actions">
-    <a class="button" href="{{ url_for('admin_verifications', status='pending') }}">
-        Pending
-    </a>
-
-    <a class="button secondary"
-       href="{{ url_for('admin_verifications', status='approved') }}">
-        Approved
-    </a>
-
-    <a class="button secondary"
-       href="{{ url_for('admin_verifications', status='rejected') }}">
-        Rejected
-    </a>
-</div>
-
-<h2>{{ status|capitalize }} Profiles</h2>
-
-{% for profile in profiles %}
-    <div class="panel">
-        <h3>{{ profile.full_name }}</h3>
-
-        <p><strong>Department:</strong> {{ profile.department }}</p>
-        <p><strong>Degree:</strong> {{ profile.degree }}</p>
-        <p><strong>Graduation year:</strong> {{ profile.graduation_year }}</p>
-
-        {% if profile.occupation %}
-            <p><strong>Occupation:</strong> {{ profile.occupation }}</p>
-        {% endif %}
-
-        {% if profile.company %}
-            <p><strong>Company:</strong> {{ profile.company }}</p>
-        {% endif %}
-
-        <p>
-            <strong>Status:</strong>
-            {{ profile.verification_status|capitalize }}
+<section class="page-head">
+    <div class="container">
+        <p class="eyebrow">ADMINISTRATION</p>
+        <h1>Alumni Verification</h1>
+        <p class="lead">
+            Review alumni registration requests and manage profile visibility.
         </p>
+    </div>
+</section>
 
-        <div class="actions">
-            <a class="button"
-               href="{{ url_for('alumni_profile', id=profile.id) }}">
-                View Profile
+<section class="section">
+    <div class="container">
+
+        <div class="admin-verification-tabs">
+            <a class="admin-tab {% if status == 'pending' %}active{% endif %}"
+               href="{{ url_for('admin_verifications', status='pending') }}">
+                Pending
             </a>
 
-            {% if profile.verification_status != "approved" %}
-                <form method="POST"
-                      action="{{ url_for('admin_approve', id=profile.id) }}">
-                    <input type="hidden" name="csrf_token"
-                           value="{{ csrf_token() }}">
-                    <button type="submit">Approve</button>
-                </form>
-            {% endif %}
+            <a class="admin-tab {% if status == 'approved' %}active{% endif %}"
+               href="{{ url_for('admin_verifications', status='approved') }}">
+                Approved
+            </a>
 
-            {% if profile.verification_status != "rejected" %}
-                <form method="POST"
-                      action="{{ url_for('admin_reject', id=profile.id) }}">
-                    <input type="hidden" name="csrf_token"
-                           value="{{ csrf_token() }}">
-                    <button type="submit" class="secondary">
-                        Reject
-                    </button>
-                </form>
-            {% endif %}
+            <a class="admin-tab {% if status == 'rejected' %}active{% endif %}"
+               href="{{ url_for('admin_verifications', status='rejected') }}">
+                Rejected
+            </a>
+        </div>
 
-            <form method="POST"
-                  action="{{ url_for('admin_toggle_visibility', id=profile.id) }}">
-                <input type="hidden" name="csrf_token"
-                       value="{{ csrf_token() }}">
-                <button type="submit" class="secondary">
-                    {% if profile.is_visible %}
-                        Hide Profile
-                    {% else %}
-                        Show Profile
+        <div class="admin-results-heading">
+            <div>
+                <h2>{{ status|capitalize }} Profiles</h2>
+                <p class="muted">Review and manage alumni profiles below.</p>
+            </div>
+        </div>
+
+        <div class="admin-profile-list">
+
+            {% for profile in profiles %}
+
+            <article class="admin-profile-card">
+
+                <div class="admin-profile-top">
+                    <div>
+                        <p class="eyebrow">ALUMNI PROFILE</p>
+                        <h3>{{ profile.full_name }}</h3>
+                        <p class="muted">
+                            {{ profile.department }}{% if profile.degree %} · {{ profile.degree }}{% endif %}
+                        </p>
+                    </div>
+
+                    <span class="pill
+                        {% if profile.verification_status == 'approved' %}
+                            approved
+                        {% elif profile.verification_status == 'rejected' %}
+                            admin-rejected
+                        {% endif %}">
+                        {{ profile.verification_status|capitalize }}
+                    </span>
+                </div>
+
+                <div class="admin-profile-details">
+                    <div>
+                        <span class="profile-label">Graduation year</span>
+                        <strong>{{ profile.graduation_year or 'Not provided' }}</strong>
+                    </div>
+
+                    <div>
+                        <span class="profile-label">Occupation</span>
+                        <strong>{{ profile.occupation or 'Not provided' }}</strong>
+                    </div>
+
+                    <div>
+                        <span class="profile-label">Company</span>
+                        <strong>{{ profile.company or 'Not provided' }}</strong>
+                    </div>
+
+                    <div>
+                        <span class="profile-label">Visibility</span>
+                        <strong>{{ 'Visible' if profile.is_visible else 'Hidden' }}</strong>
+                    </div>
+                </div>
+
+                <div class="admin-profile-actions">
+
+                    <a class="button button-secondary"
+                       href="{{ url_for('alumni_profile', id=profile.id) }}">
+                        View Profile
+                    </a>
+
+                    {% if profile.verification_status != "approved" %}
+                    <form method="POST"
+                          action="{{ url_for('admin_approve', id=profile.id) }}">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <button type="submit" class="button">
+                            Approve
+                        </button>
+                    </form>
                     {% endif %}
-                </button>
-            </form>
+
+                    {% if profile.verification_status != "rejected" %}
+                    <form method="POST"
+                          action="{{ url_for('admin_reject', id=profile.id) }}">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <button type="submit" class="button button-danger">
+                            Reject
+                        </button>
+                    </form>
+                    {% endif %}
+
+                    <form method="POST"
+                          action="{{ url_for('admin_toggle_visibility', id=profile.id) }}">
+                        <input type="hidden" name="csrf_token"
+                               value="{{ csrf_token() }}">
+                        <button type="submit" class="button button-secondary">
+                            {{ 'Hide Profile' if profile.is_visible else 'Show Profile' }}
+                        </button>
+                    </form>
+
+                </div>
+
+            </article>
+
+            {% else %}
+
+            <div class="admin-empty">
+                <div class="icon blue">✓</div>
+                <h3>No {{ status }} profiles</h3>
+                <p>There are currently no profiles in this category.</p>
+            </div>
+
+            {% endfor %}
+
         </div>
     </div>
-{% else %}
-    <div class="panel">
-        <p>No {{ status }} profiles found.</p>
-    </div>
-{% endfor %}
+</section>
+
 {% endblock %}
