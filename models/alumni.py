@@ -24,6 +24,8 @@ class Alumni(db.Model):
     full_name = db.Column(db.String(150), nullable=False)
     department = db.Column(db.String(120), nullable=False, index=True)
     degree = db.Column(db.String(120), nullable=False)
+    github = db.Column(db.String(255), nullable=True)
+    linkedin = db.Column(db.String(255), nullable=True)
 
     graduation_year = db.Column(
         db.Integer,
