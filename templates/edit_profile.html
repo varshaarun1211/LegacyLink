@@ -10,6 +10,7 @@
         <h1>Edit Your Profile</h1>
         <p class="muted">Keep your alumni information up to date.</p>
 
+        <!-- Main profile form -->
         <form method="POST" action="{{ url_for('edit_profile') }}">
             <input type="hidden" name="csrf_token"
                    value="{{ csrf_token() }}">
@@ -104,6 +105,43 @@
                 </a>
             </div>
         </form>
+
+        <hr>
+
+        <!-- Separate mentorship availability form -->
+        <div class="mentorship-settings">
+            <p class="eyebrow">Give Back to Your Community</p>
+            <h2>Mentorship Availability</h2>
+            <p class="muted">
+                Let other approved alumni know that you're willing to
+                guide them with your experience, career advice, or skills.
+            </p>
+
+            <form method="POST"
+                  action="{{ url_for('mentorship_availability') }}">
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <label class="full">
+                    <span>
+                        <input type="checkbox"
+                               name="available_for_mentorship"
+                               style="width:auto; min-height:auto;"
+                               {% if profile.available_for_mentorship %}checked{% endif %}>
+                        I am available to mentor other alumni.
+                    </span>
+                </label>
+
+                <p class="muted">
+                    Only approved alumni can enable mentorship availability.
+                    You can change this preference at any time.
+                </p>
+
+                <button type="submit" class="button">
+                    Save Mentorship Preference
+                </button>
+            </form>
+        </div>
     </div>
 </section>
 {% endblock %}
