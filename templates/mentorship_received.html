@@ -1,66 +1,184 @@
 
 {% extends "base.html" %}
 
-{% block title %}Mentorship Requests Received | LegacyLink{% endblock %}
+{% block title %}Received Mentorship Requests | LegacyLink{% endblock %}
 
 {% block content %}
-<div class="panel">
-    <h1>Mentorship Requests Received</h1>
-    <p>View and respond to requests from fellow alumni.</p>
 
-    {% if requests_received %}
-        {% for mentorship in requests_received %}
-            <div class="panel">
-                <h3>{{ mentorship.mentee.full_name }}</h3>
+<section class="page-head mentorship-page-head">
+    <div class="container">
+        <p class="eyebrow">MENTORSHIP NETWORK</p>
+        <h1>Received requests</h1>
+        <p class="lead">
+            Connect with students and fellow alumni who are looking
+            for guidance from you.
+        </p>
 
-                <p>
-                    {{ mentorship.mentee.degree }}
-                    · {{ mentorship.mentee.department }}
-                    · {{ mentorship.mentee.graduation_year }}
-                </p>
+        <div class="mentorship-nav">
+            <a href="{{ url_for('mentorship_received') }}"
+               class="mentorship-nav-link active">
+                Received requests
+            </a>
+            <a href="{{ url_for('mentorship_sent') }}"
+               class="mentorship-nav-link">
+                Sent requests
+            </a>
+        </div>
+    </div>
+</section>
 
-                <p><strong>Message:</strong></p>
-                <p>{{ mentorship.message or "No message provided." }}</p>
+<section class="section">
+    <div class="container">
 
-                <p>
-                    <strong>Status:</strong>
-                    {{ mentorship.status|capitalize }}
-                </p>
+        {% set pending_count = requests_received | selectattr('status', 'equalto', 'pending') | list | length %}
+        {% set accepted_count = requests_received | selectattr('status', 'equalto', 'accepted') | list | length %}
+        {% set rejected_count = requests_received | selectattr('status', 'equalto', 'rejected') | list | length %}
 
-                <p>
-                    <strong>Requested:</strong>
-                    {{ mentorship.requested_at.strftime('%d %b %Y') }}
-                </p>
-
-                <a href="{{ url_for('alumni_profile', id=mentorship.mentee.id) }}">
-                    View mentee profile
-                </a>
-
-                {% if mentorship.status == "pending" %}
-                    <div class="actions">
-                        <form method="POST"
-                              action="{{ url_for('mentorship_respond', request_id=mentorship.id) }}">
-                            <input type="hidden" name="csrf_token"
-                                   value="{{ csrf_token() }}">
-                            <input type="hidden" name="action" value="accept">
-                            <button type="submit">Accept</button>
-                        </form>
-
-                        <form method="POST"
-                              action="{{ url_for('mentorship_respond', request_id=mentorship.id) }}">
-                            <input type="hidden" name="csrf_token"
-                                   value="{{ csrf_token() }}">
-                            <input type="hidden" name="action" value="reject">
-                            <button type="submit" class="secondary">
-                                Reject
-                            </button>
-                        </form>
-                    </div>
-                {% endif %}
+        <div class="mentorship-summary">
+            <div class="mentorship-stat">
+                <span class="mentorship-stat-number">{{ requests_received | length }}</span>
+                <span class="mentorship-stat-label">Total requests</span>
             </div>
-        {% endfor %}
-    {% else %}
-        <p>You haven't received any mentorship requests yet.</p>
-    {% endif %}
-</div>
+
+            <div class="mentorship-stat">
+                <span class="mentorship-stat-number">{{ pending_count }}</span>
+                <span class="mentorship-stat-label">Pending</span>
+            </div>
+
+            <div class="mentorship-stat">
+                <span class="mentorship-stat-number">{{ accepted_count }}</span>
+                <span class="mentorship-stat-label">Accepted</span>
+            </div>
+
+            <div class="mentorship-stat">
+                <span class="mentorship-stat-number">{{ rejected_count }}</span>
+                <span class="mentorship-stat-label">Rejected</span>
+            </div>
+        </div>
+
+        <div class="mentorship-section-heading">
+            <div>
+                <p class="eyebrow">YOUR INBOX</p>
+                <h2>People reaching out</h2>
+                <p class="muted">
+                    Review requests and decide whether you'd like to mentor them.
+                </p>
+            </div>
+        </div>
+
+        {% if requests_received %}
+
+            <div class="mentorship-list">
+
+                {% for mentorship in requests_received %}
+
+                    <article class="mentorship-card">
+
+                        <div class="mentorship-card-top">
+
+                            <div class="mentorship-person">
+                                <div class="mentorship-avatar">
+                                    {{ mentorship.mentee.full_name[0] | upper }}
+                                </div>
+
+                                <div>
+                                    <h3>{{ mentorship.mentee.full_name }}</h3>
+
+                                    <p class="mentorship-person-details">
+                                        {{ mentorship.mentee.degree }}
+                                        <span>&middot;</span>
+                                        {{ mentorship.mentee.department }}
+                                    </p>
+
+                                    <p class="mentorship-person-details">
+                                        Class of {{ mentorship.mentee.graduation_year }}
+                                    </p>
+                                </div>
+                            </div>
+
+                            <span class="mentorship-status status-{{ mentorship.status }}">
+                                {{ mentorship.status | capitalize }}
+                            </span>
+
+                        </div>
+
+                        <div class="mentorship-message">
+                            <p class="mentorship-message-label">MESSAGE</p>
+
+                            {% if mentorship.message %}
+                                <p>{{ mentorship.message }}</p>
+                            {% else %}
+                                <p class="muted">No message was included with this request.</p>
+                            {% endif %}
+                        </div>
+
+                        <div class="mentorship-card-bottom">
+
+                            <span class="mentorship-date">
+                                Requested
+                                {{ mentorship.requested_at.strftime('%d %b %Y') }}
+                            </span>
+
+                            <div class="mentorship-actions">
+
+                                <a class="button button-secondary button-small"
+                                   href="{{ url_for('alumni_profile', id=mentorship.mentee.id) }}">
+                                    View profile
+                                </a>
+
+                                {% if mentorship.status == 'pending' %}
+
+                                    <form method="POST"
+                                          action="{{ url_for('mentorship_respond', request_id=mentorship.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="action" value="accept">
+
+                                        <button type="submit"
+                                                class="button button-small">
+                                            Accept
+                                        </button>
+                                    </form>
+
+                                    <form method="POST"
+                                          action="{{ url_for('mentorship_respond', request_id=mentorship.id) }}">
+                                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                                        <input type="hidden" name="action" value="reject">
+
+                                        <button type="submit"
+                                                class="button button-danger button-small">
+                                            Reject
+                                        </button>
+                                    </form>
+
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="mentorship-empty">
+                <div class="mentorship-empty-icon">✦</div>
+                <h3>No mentorship requests yet</h3>
+                <p>
+                    When someone requests your guidance, their request
+                    will appear here.
+                </p>
+                <a href="{{ url_for('mentorship_sent') }}"
+                   class="text-link">
+                    View your sent requests
+                </a>
+            </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
 {% endblock %}

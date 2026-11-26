@@ -28,3 +28,4 @@ def enable_sqlite_foreign_keys(connection, connection_record):
 from .user import User
 from .alumni import Alumni
 from .mentorship import Mentorship
+from .opportunity import Opportunity

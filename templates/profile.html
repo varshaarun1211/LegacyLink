@@ -1,8 +1,256 @@
+
 {% extends "base.html" %}
-{% block title %}Alumni profile | LegacyLink{% endblock %}
+
+{% block title %}{{ profile.full_name }} | LegacyLink{% endblock %}
+
 {% block content %}
-<section class="page-head"><div class="container"><a class="text-link" href="{{ url_for('alumni_directory') }}">← Back to directory</a><p class="eyebrow">Alumni profile</p><h1>Maya Rao</h1><p class="lead">Computer Science · Class of 2021</p></div></section>
-<section class="section"><div class="container profile">
- <div class="avatar profile-avatar coral-bg">MR</div><div><span class="pill approved">Approved profile</span><h2>Product designer at Northstar Labs</h2><p class="lead">I enjoy making complex tools easier to use and helping early-career designers find their footing.</p><h3>Interests</h3><p class="tags"><span>Product design</span><span>Mentoring</span><span>Accessibility</span></p><p class="demo">Fictional demo content. Load profile {{ profile_id }} from Flask and show only approved, visible profiles.</p></div>
-</div></section>
+<section class="page-head profile-page-head">
+  <div class="container">
+    <a class="text-link"
+       href="{{ url_for('alumni_directory') }}">
+      ← Back to alumni directory
+    </a>
+
+    <p class="eyebrow">Alumni profile</p>
+    <h1>{{ profile.full_name }}</h1>
+    <p class="lead">
+      {{ profile.occupation or "LegacyLink Alumni" }}
+      {% if profile.company %} at {{ profile.company }}{% endif %}
+    </p>
+  </div>
+</section>
+
+<section class="section soft">
+  <div class="container profile-layout">
+
+    <div class="profile-main">
+
+      <article class="card profile-section">
+        <div class="profile-identity">
+          <div class="avatar blue-bg profile-avatar"
+               aria-hidden="true">
+            {{ profile.full_name[:1]|upper }}
+          </div>
+
+          <div>
+            <h2>{{ profile.full_name }}</h2>
+            <p>{{ profile.degree }}</p>
+            <p>{{ profile.department }} · Class of {{ profile.graduation_year }}</p>
+          </div>
+        </div>
+
+        {% if profile.bio %}
+          <div class="profile-divider"></div>
+          <h3>About</h3>
+          <p class="profile-bio">{{ profile.bio }}</p>
+        {% endif %}
+      </article>
+
+      <article class="card profile-section">
+        <h2>Professional information</h2>
+
+        <div class="profile-information">
+          {% if profile.occupation %}
+            <div>
+              <span class="profile-label">Occupation</span>
+              <p>{{ profile.occupation }}</p>
+            </div>
+          {% endif %}
+
+          {% if profile.company %}
+            <div>
+              <span class="profile-label">Company</span>
+              <p>{{ profile.company }}</p>
+            </div>
+          {% endif %}
+
+          {% if profile.career_interests %}
+            <div>
+              <span class="profile-label">Career interests</span>
+              <p>{{ profile.career_interests }}</p>
+            </div>
+          {% endif %}
+        </div>
+
+        {% if not profile.occupation and not profile.company
+              and not profile.career_interests %}
+          <p class="muted">No professional information added yet.</p>
+        {% endif %}
+      </article>
+
+      <article class="card profile-section">
+        <h2>Skills and expertise</h2>
+
+        {% if profile.skills %}
+          <div class="profile-skills">
+            {{ profile.skills }}
+          </div>
+        {% else %}
+          <p class="muted">No skills have been added yet.</p>
+        {% endif %}
+      </article>
+
+      <article class="card profile-section">
+        <h2>Connect</h2>
+
+        <div class="profile-social-links">
+          {% if profile.linkedin_url %}
+            <a href="{{ profile.linkedin_url }}"
+               target="_blank" rel="noopener noreferrer">
+              LinkedIn ↗
+            </a>
+          {% endif %}
+
+          {% if profile.github_url %}
+            <a href="{{ profile.github_url }}"
+               target="_blank" rel="noopener noreferrer">
+              GitHub ↗
+            </a>
+          {% endif %}
+
+          {% if profile.portfolio_url %}
+            <a href="{{ profile.portfolio_url }}"
+               target="_blank" rel="noopener noreferrer">
+              Portfolio ↗
+            </a>
+          {% endif %}
+        </div>
+
+        {% if not profile.linkedin_url and not profile.github_url
+              and not profile.portfolio_url %}
+          <p class="muted">No external links have been added.</p>
+        {% endif %}
+      </article>
+
+    </div>
+
+    <aside class="profile-sidebar">
+
+      <article class="card profile-section">
+        <h2>Mentorship</h2>
+
+        {% if profile.available_for_mentorship %}
+          <span class="mentorship-available">
+            Available for mentorship
+          </span>
+
+          <p>
+            This alumnus is open to helping fellow graduates
+            with guidance and career development.
+          </p>
+        {% else %}
+          <p class="muted">
+            This alumnus is not currently accepting mentorship requests.
+          </p>
+        {% endif %}
+
+        {% if is_owner %}
+
+          <a class="button profile-full-button"
+             href="{{ url_for('edit_profile') }}">
+            Manage mentorship availability
+          </a>
+
+        {% elif current_user.is_authenticated %}
+
+          {% if current_user.alumni
+                and current_user.alumni.verification_status == "approved"
+                and profile.available_for_mentorship
+                and profile.user_id %}
+
+            {% set active_request = namespace(found=false) %}
+
+            {% for mentorship in profile.mentorship_requests_received %}
+              {% if mentorship.mentee_id == current_user.alumni.id
+                    and mentorship.status in ["pending", "accepted"] %}
+                {% set active_request.found = true %}
+              {% endif %}
+            {% endfor %}
+
+            {% if current_user.alumni.id == profile.id %}
+              <p class="muted">
+                You cannot request mentorship from your own profile.
+              </p>
+
+            {% elif active_request.found %}
+              <p class="muted">
+                You already have an active mentorship request with this alumnus.
+              </p>
+
+              <a class="button profile-full-button"
+                 href="{{ url_for('mentorship_sent') }}">
+                View my sent requests
+              </a>
+
+            {% else %}
+              <form method="POST"
+                    action="{{ url_for('mentorship_request',
+                                       mentor_id=profile.id) }}"
+                    class="mentorship-request-form">
+
+                <input type="hidden" name="csrf_token"
+                       value="{{ csrf_token() }}">
+
+                <label for="mentorship-message">
+                  Introduce yourself
+                </label>
+
+                <textarea id="mentorship-message"
+                          name="message"
+                          maxlength="2000"
+                          rows="4"
+                          placeholder="Tell them what guidance you're looking for..."></textarea>
+
+                <button class="button profile-full-button"
+                        type="submit">
+                  Request mentorship
+                </button>
+              </form>
+            {% endif %}
+
+          {% elif not current_user.alumni %}
+            <p class="muted">
+              An approved alumni account is required to request mentorship.
+            </p>
+          {% else %}
+            <p class="muted">
+              Your alumni profile must be approved before you can request mentorship.
+            </p>
+          {% endif %}
+
+        {% else %}
+
+          {% if profile.available_for_mentorship %}
+            <p class="muted">
+              Log in with an approved alumni account to request mentorship.
+            </p>
+
+            <a class="button profile-full-button"
+               href="{{ url_for('login') }}">
+              Log in
+            </a>
+          {% endif %}
+
+        {% endif %}
+      </article>
+
+      {% if is_owner %}
+        <article class="card profile-section">
+          <h3>Profile visibility</h3>
+          <p class="muted">
+            Your profile is displayed according to your visibility
+            and verification settings.
+          </p>
+
+          <a class="text-link"
+             href="{{ url_for('edit_profile') }}">
+            Manage profile →
+          </a>
+        </article>
+      {% endif %}
+
+    </aside>
+
+  </div>
+</section>
 {% endblock %}

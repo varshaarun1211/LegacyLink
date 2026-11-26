@@ -14,12 +14,64 @@
   <div class="container nav-wrap">
     <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">L</span> LegacyLink</a>
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav">Menu</button>
-    <nav id="nav" class="nav" aria-label="Main navigation">
-      <a href="{{ url_for('index') }}#how-it-works">How it works</a>
-      <a href="{{ url_for('alumni_directory') }}">Alumni directory</a>
-      <a href="{{ url_for('login') }}">Log in</a>
-      <a class="button button-small" href="{{ url_for('register') }}">Join the network</a>
-    </nav>
+    
+
+<nav id="nav" class="nav" aria-label="Main navigation">
+  <a href="{{ url_for('index') }}#how-it-works">How it works</a>
+  <a href="{{ url_for('alumni_directory') }}">Alumni directory</a>
+
+  {% if current_user.is_authenticated %}
+
+    {% if current_user.is_admin %}
+      <a href="{{ url_for('admin_verifications') }}">
+        Admin
+        {% if notification_counts.admin_pending > 0 %}
+          <span class="notification-badge">
+            {{ notification_counts.admin_pending }}
+          </span>
+        {% endif %}
+      </a>
+    {% endif %}
+
+    {% if current_user.alumni %}
+      <a href="{{ url_for('alumni_profile', id=current_user.alumni.id) }}">
+        My Profile
+      </a>
+
+      <a href="{{ url_for('mentorship_received') }}">
+        Received
+        {% if notification_counts.mentorship_received > 0 %}
+          <span class="notification-badge">
+            {{ notification_counts.mentorship_received }}
+          </span>
+        {% endif %}
+      </a>
+
+      <a href="{{ url_for('mentorship_sent') }}">
+        Sent
+        {% if notification_counts.mentorship_updates > 0 %}
+          <span class="notification-badge">
+            {{ notification_counts.mentorship_updates }}
+          </span>
+        {% endif %}
+      </a>
+    {% endif %}
+
+    <form method="POST" action="{{ url_for('logout') }}">
+      <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+      <button type="submit" class="nav-link-button">Log out</button>
+    </form>
+
+  {% else %}
+    <a href="{{ url_for('login') }}">Log in</a>
+    <a class="button button-small" href="{{ url_for('register') }}">
+      Join the network
+    </a>
+  {% endif %}
+</nav>
+
+
+
   </div>
 </header>
 <main id="main">{% block content %}{% endblock %}</main>
