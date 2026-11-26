@@ -1,0 +1,95 @@
+
+{% extends "base.html" %}
+
+{% block title %}{{ opportunity.title }} | LegacyLink{% endblock %}
+
+{% block content %}
+
+<section class="page-head">
+    <div class="container">
+        <p class="eyebrow">CAREER OPPORTUNITY</p>
+
+        <h1>{{ opportunity.title }}</h1>
+
+        <p class="lead">
+            {{ opportunity.company }}
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        <div class="opportunity-detail-card opportunity-card">
+
+            <div class="opportunity-card-top">
+
+                <span class="opportunity-type">
+                    {{ opportunity.opportunity_type | title }}
+                </span>
+
+                {% if opportunity.deadline %}
+                    <span class="opportunity-date">
+                        Application deadline:
+                        {{ opportunity.deadline.strftime('%d %b %Y') }}
+                    </span>
+                {% endif %}
+
+            </div>
+
+            <h2>{{ opportunity.title }}</h2>
+
+            <p class="opportunity-company">
+                {{ opportunity.company }}
+            </p>
+
+            <p class="opportunity-poster">
+                Posted by:
+                <strong>{{ opportunity.alumni.full_name }}</strong>
+            </p>
+
+            {% if opportunity.location %}
+                <p class="opportunity-location">
+                    {{ opportunity.location }}
+                </p>
+            {% endif %}
+
+            <div class="opportunity-requirements">
+                <h3>About This Opportunity</h3>
+                <p>{{ opportunity.description }}</p>
+            </div>
+
+            <div class="form-actions">
+
+                {% if current_user.is_authenticated
+                      and current_user.alumni
+                      and current_user.alumni.id == opportunity.alumni_id %}
+
+                    <span class="button button-secondary">
+                        You posted this opportunity
+                    </span>
+
+                {% elif opportunity.application_link %}
+
+                    <a href="{{ opportunity.application_link }}"
+                       target="_blank"
+                       rel="noopener noreferrer"
+                       class="button">
+                        Apply Now
+                    </a>
+
+                {% endif %}
+
+                <a href="{{ url_for('opportunity.list_opportunities') }}"
+                   class="button button-secondary">
+                    Back to Opportunities
+                </a>
+
+            </div>
+
+        </div>
+
+    </div>
+</section>
+
+{% endblock %}

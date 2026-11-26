@@ -4,60 +4,106 @@
 {% block title %}Edit Profile | LegacyLink{% endblock %}
 
 {% block content %}
-<div class="panel">
-    <h1>Edit Your Profile</h1>
-    <p class="muted">Update your alumni information.</p>
+<section class="form-area">
+    <div class="form-card wide">
+        <p class="eyebrow">Your LegacyLink Profile</p>
+        <h1>Edit Your Profile</h1>
+        <p class="muted">Keep your alumni information up to date.</p>
 
-    <form method="POST" action="{{ url_for('edit_profile') }}">
-        <input type="hidden" name="csrf_token"
-               value="{{ csrf_token() }}">
+        <form method="POST" action="{{ url_for('edit_profile') }}">
+            <input type="hidden" name="csrf_token"
+                   value="{{ csrf_token() }}">
 
-        <label>Full Name *</label>
-        <input type="text" name="full_name" maxlength="150"
-               value="{{ profile.full_name }}" required>
+            <div class="form-grid">
+                <label>
+                    Full Name *
+                    <input type="text" name="full_name"
+                           maxlength="150"
+                           value="{{ profile.full_name }}" required>
+                </label>
 
-        <label>Department *</label>
-        <input type="text" name="department" maxlength="120"
-               value="{{ profile.department }}" required>
+                <label>
+                    Department *
+                    <input type="text" name="department"
+                           maxlength="120"
+                           value="{{ profile.department }}" required>
+                </label>
 
-        <label>Degree *</label>
-        <input type="text" name="degree" maxlength="120"
-               value="{{ profile.degree }}" required>
+                <label>
+                    Degree *
+                    <input type="text" name="degree"
+                           maxlength="120"
+                           value="{{ profile.degree }}" required>
+                </label>
 
-        <label>Graduation Year *</label>
-        <input type="number" name="graduation_year"
-               min="1900" max="2026"
-               value="{{ profile.graduation_year }}" required>
+                <label>
+                    Graduation Year *
+                    <input type="number" name="graduation_year"
+                           min="1900" max="2026"
+                           value="{{ profile.graduation_year }}" required>
+                </label>
 
-        <label>Occupation</label>
-        <input type="text" name="occupation" maxlength="150"
-               value="{{ profile.occupation or '' }}">
+                <label>
+                    Occupation
+                    <input type="text" name="occupation"
+                           maxlength="150"
+                           value="{{ profile.occupation or '' }}">
+                </label>
 
-        <label>Company</label>
-        <input type="text" name="company" maxlength="150"
-               value="{{ profile.company or '' }}">
+                <label>
+                    Company
+                    <input type="text" name="company"
+                           maxlength="150"
+                           value="{{ profile.company or '' }}">
+                </label>
 
-        <label>Skills</label>
-        <textarea name="skills" maxlength="1000"
-                  rows="3">{{ profile.skills or '' }}</textarea>
+                <label class="full">
+                    Skills
+                    <textarea name="skills" maxlength="1000"
+                              rows="3">{{ profile.skills or '' }}</textarea>
+                </label>
 
-        <label>About Me</label>
-        <textarea name="bio" maxlength="2000"
-                  rows="5">{{ profile.bio or '' }}</textarea>
+                <label class="full">
+                    About Me
+                    <textarea name="bio" maxlength="2000"
+                              rows="5">{{ profile.bio or '' }}</textarea>
+                </label>
 
-        <label>
-            <input type="checkbox" name="is_visible"
-                   style="width:auto"
-                   {% if profile.is_visible %}checked{% endif %}>
-            Show my profile in the alumni directory
-        </label>
+                <label class="full">
+                    GitHub Profile
+                    <input type="url" name="github_url" maxlength="255"
+                           placeholder="https://github.com/yourusername"
+                           value="{{ profile.github_url or '' }}">
+                </label>
 
-        <br><br>
-        <button type="submit">Save Changes</button>
-        <a class="button secondary"
-           href="{{ url_for('alumni_profile', id=profile.id) }}">
-            Cancel
-        </a>
-    </form>
-</div>
+                <label class="full">
+                    LinkedIn Profile
+                    <input type="url" name="linkedin_url" maxlength="255"
+                           placeholder="https://www.linkedin.com/in/yourusername"
+                           value="{{ profile.linkedin_url or '' }}">
+                </label>
+
+                <label class="full">
+                    <span>
+                        <input type="checkbox" name="is_visible"
+                               style="width:auto; min-height:auto;"
+                               {% if profile.is_visible %}checked{% endif %}>
+                        Show my profile in the alumni directory
+                    </span>
+                </label>
+            </div>
+
+            <div class="button-row">
+                <button type="submit" class="button">
+                    Save Changes
+                </button>
+
+                <a class="button button-secondary"
+                   href="{{ url_for('alumni_profile', id=profile.id) }}">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
 {% endblock %}

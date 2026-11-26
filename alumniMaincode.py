@@ -100,12 +100,46 @@ def validate_profile_fields(form):
 
 def register_routes(app):
 
+    @app.context_processor
+    def inject_notification_counts():
+        counts = {
+            "admin_pending": 0,
+            "mentorship_received": 0,
+            "mentorship_updates": 0,
+        }
+
+        if not current_user.is_authenticated:
+            return {"notification_counts": counts}
+
+        # Admin: alumni profiles awaiting verification
+        if current_user.is_admin:
+            counts["admin_pending"] = Alumni.query.filter_by(
+                verification_status="pending"
+            ).count()
+
+        # Alumni: mentorship activity
+        profile = current_user.alumni
+
+        if profile is not None:
+            counts["mentorship_received"] = Mentorship.query.filter_by(
+                mentor_id=profile.id,
+                status="pending"
+            ).count()
+
+            counts["mentorship_updates"] = Mentorship.query.filter(
+                Mentorship.mentee_id == profile.id,
+                Mentorship.status.in_(["accepted", "rejected"])
+            ).count()
+
+        return {"notification_counts": counts}
+
     @app.route("/")
     def index():
         return render_template("index.html")
     
     @app.route("/register", methods=["GET", "POST"])
     def register():
+
         if current_user.is_authenticated:
             return redirect(url_for("alumni_directory"))
         if request.method == "GET":
