@@ -1,4 +1,4 @@
-
+```html
 {% extends "base.html" %}
 
 {% block title %}Edit Profile | LegacyLink{% endblock %}
@@ -45,6 +45,18 @@
         <textarea name="bio" maxlength="2000"
                   rows="5">{{ profile.bio or '' }}</textarea>
 
+        <!-- GitHub -->
+        <label>GitHub Profile</label>
+        <input type="url" name="github" maxlength="255"
+               placeholder="https://github.com/yourusername"
+               value="{{ profile.github or '' }}">
+
+        <!-- LinkedIn -->
+        <label>LinkedIn Profile</label>
+        <input type="url" name="linkedin" maxlength="255"
+               placeholder="https://www.linkedin.com/in/yourusername"
+               value="{{ profile.linkedin or '' }}">
+
         <label>
             <input type="checkbox" name="is_visible"
                    style="width:auto"
@@ -53,7 +65,9 @@
         </label>
 
         <br><br>
+
         <button type="submit">Save Changes</button>
+
         <a class="button secondary"
            href="{{ url_for('alumni_profile', id=profile.id) }}">
             Cancel
@@ -61,3 +75,4 @@
     </form>
 </div>
 {% endblock %}
+```
