@@ -1,0 +1,136 @@
+
+{% extends "base.html" %}
+
+{% block title %}Post an Opportunity | LegacyLink{% endblock %}
+
+{% block content %}
+
+<section class="page-head">
+    <div class="container">
+        <p class="eyebrow">GIVE BACK TO YOUR NETWORK</p>
+
+        <h1>Share an Opportunity</h1>
+
+        <p class="lead">
+            Help fellow alumni and students discover new career possibilities.
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        <form method="POST"
+              action="{{ url_for('opportunity.create_opportunity') }}"
+              class="opportunity-form">
+
+            <input type="hidden"
+                   name="csrf_token"
+                   value="{{ csrf_token() }}">
+
+            <div class="form-group">
+                <label for="title">Job Title *</label>
+
+                <input type="text"
+                       id="title"
+                       name="title"
+                       maxlength="150"
+                       value="{{ opportunity.title if opportunity else '' }}"
+                       placeholder="e.g. Software Developer Intern"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="company">Company *</label>
+
+                <input type="text"
+                       id="company"
+                       name="company"
+                       maxlength="150"
+                       value="{{ opportunity.company if opportunity else '' }}"
+                       placeholder="Company name"
+                       required>
+            </div>
+
+            <div class="form-group">
+                <label for="opportunity_type">Opportunity Type *</label>
+
+                <select id="opportunity_type"
+                        name="opportunity_type"
+                        required>
+
+                    <option value="">Select type</option>
+
+                    <option value="job"
+                        {% if opportunity and opportunity.opportunity_type == 'job' %}selected{% endif %}>
+                        Full-time Job
+                    </option>
+
+                    <option value="internship"
+                        {% if opportunity and opportunity.opportunity_type == 'internship' %}selected{% endif %}>
+                        Internship
+                    </option>
+
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="location">Location</label>
+
+                <input type="text"
+                       id="location"
+                       name="location"
+                       maxlength="150"
+                       value="{{ opportunity.location if opportunity else '' }}"
+                       placeholder="e.g. Chennai / Remote">
+            </div>
+
+            <div class="form-group">
+                <label for="description">Description *</label>
+
+                <textarea id="description"
+                          name="description"
+                          rows="5"
+                          placeholder="Describe the opportunity..."
+                          required>{{ opportunity.description if opportunity else '' }}</textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="application_link">Application Link</label>
+
+                <input type="url"
+                       id="application_link"
+                       name="application_link"
+                       maxlength="500"
+                       value="{{ opportunity.application_link if opportunity else '' }}"
+                       placeholder="https://example.com/apply">
+            </div>
+
+            <div class="form-group">
+                <label for="deadline">Application Deadline</label>
+
+                <input type="date"
+                       id="deadline"
+                       name="deadline"
+                       value="{{ opportunity.deadline.isoformat() if opportunity and opportunity.deadline else '' }}">
+            </div>
+
+            <div class="form-actions">
+
+                <button type="submit" class="button">
+                    Publish Opportunity
+                </button>
+
+                <a href="{{ url_for('opportunity.list_opportunities') }}"
+                   class="button button-secondary">
+                    Cancel
+                </a>
+
+            </div>
+
+        </form>
+
+    </div>
+</section>
+
+{% endblock %}

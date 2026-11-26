@@ -1,93 +1,179 @@
+
 {% extends "base.html" %}
-{% block title %}Alumni directory | LegacyLink{% endblock %}
+{% block title %}Alumni Directory | LegacyLink{% endblock %}
 
 {% block content %}
-<section class="page-head">
+<section class="page-head directory-head">
   <div class="container">
     <p class="eyebrow">Find your people</p>
-    <h1>Alumni directory</h1>
-    <p class="lead">Search approved alumni by name, department, or graduation year.</p>
+    <h1>Alumni Directory</h1>
+    <p class="lead">
+      Discover fellow graduates, explore their journeys, and build connections
+      that last.
+    </p>
   </div>
 </section>
 
 <section class="section soft">
   <div class="container">
-    <form class="filters" method="get" action="{{ url_for('alumni_directory') }}">
-      <label>
-        Search name
-        <input name="q" type="search" value="{{ q or '' }}" placeholder="Try a name">
-      </label>
 
-      <label>
-        Department
-        <select name="department">
-          <option value="">All departments</option>
-          {% for item in departments %}
-            <option value="{{ item }}" {% if department == item %}selected{% endif %}>
-              {{ item }}
-            </option>
-          {% endfor %}
-        </select>
-      </label>
+    <div class="directory-search">
+      <div>
+        <h2>Find an alumnus</h2>
+        <p>Search by name, department, or graduation year.</p>
+      </div>
 
-      <label>
-        Graduation year
-        <select name="graduation_year">
-          <option value="">All years</option>
-          {% for year in years %}
-            <option value="{{ year }}" {% if graduation_year == year %}selected{% endif %}>
-              {{ year }}
-            </option>
-          {% endfor %}
-        </select>
-      </label>
+      <form class="directory-filters" method="get"
+            action="{{ url_for('alumni_directory') }}">
 
-      <button class="button" type="submit">Search</button>
-    </form>
+        <label>
+          Name
+          <input name="q" type="search"
+                 value="{{ q or '' }}"
+                 placeholder="Search alumni by name">
+        </label>
 
-    <div class="grid three">
+        <label>
+          Department
+          <select name="department">
+            <option value="">All departments</option>
+            {% for item in departments %}
+              <option value="{{ item }}"
+                {% if department == item %}selected{% endif %}>
+                {{ item }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>
+          Graduation year
+          <select name="graduation_year">
+            <option value="">All years</option>
+            {% for year in range(2026, 2014, -1) %}
+              <option value="{{ year }}" {% if graduation_year == year %}selected{% endif %}>
+                {{ year }}
+              </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <div class="directory-actions">
+          <button class="button" type="submit">Search alumni</button>
+          <a class="button button-secondary"
+             href="{{ url_for('alumni_directory') }}">Clear</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="directory-results-heading">
+      <div>
+        <h2>Our alumni community</h2>
+        <p>
+          Showing {{ pagination.total }} matching alumni
+        </p>
+      </div>
+    </div>
+
+    <div class="grid three directory-grid">
       {% for person in alumni %}
-        <article class="person">
-          <div class="avatar blue-bg" aria-hidden="true">
-            {{ person.full_name[:1]|upper }}
+        <article class="person directory-card">
+
+          <div class="directory-card-top">
+            <div class="avatar blue-bg directory-avatar"
+                 aria-hidden="true">
+              {{ person.full_name[:1]|upper }}
+            </div>
+
+            {% if person.available_for_mentorship %}
+              <span class="mentorship-available">
+                Open to mentorship
+              </span>
+            {% endif %}
           </div>
-          <p class="eyebrow">{{ person.department }} · {{ person.graduation_year }}</p>
+
+          <p class="eyebrow">
+            {{ person.department }} · Class of {{ person.graduation_year }}
+          </p>
+
           <h2>{{ person.full_name }}</h2>
 
+          {% if person.degree %}
+            <p class="directory-degree">{{ person.degree }}</p>
+          {% endif %}
+
           {% if person.occupation or person.company %}
-            <p>
-              {{ person.occupation or "Alumni" }}
-              {% if person.company %} at {{ person.company }}{% endif %}
+            <p class="directory-career">
+              {{ person.occupation or "Alumnus" }}
+              {% if person.company %}
+                at {{ person.company }}
+              {% endif %}
+            </p>
+          {% else %}
+            <p class="directory-career">LegacyLink Alumni</p>
+          {% endif %}
+
+          {% if person.bio %}
+            <p class="directory-bio">
+              {{ person.bio|truncate(130) }}
             </p>
           {% endif %}
 
-          <a class="text-link"
+          {% if person.skills %}
+            <div class="directory-skills">
+              {{ person.skills|truncate(100) }}
+            </div>
+          {% endif %}
+
+          <a class="text-link directory-profile-link"
              href="{{ url_for('alumni_profile', id=person.id) }}">
             View profile →
           </a>
         </article>
       {% else %}
-        <p class="empty">No approved alumni match those filters.</p>
+        <div class="directory-empty">
+          <h3>No matching alumni found</h3>
+          <p>
+            Try changing your search or clearing one of the filters.
+          </p>
+          <a class="button button-secondary"
+             href="{{ url_for('alumni_directory') }}">
+            View all alumni
+          </a>
+        </div>
       {% endfor %}
     </div>
 
     {% if pagination.pages > 1 %}
-      <div class="button-row">
+      <nav class="directory-pagination" aria-label="Directory pages">
+
         {% if pagination.has_prev %}
           <a class="button button-secondary"
-             href="{{ url_for('alumni_directory', q=q, department=department, graduation_year=graduation_year, page=pagination.prev_num) }}">
-            Previous
+             href="{{ url_for('alumni_directory',
+                 q=q, department=department,
+                 graduation_year=graduation_year,
+                 page=pagination.prev_num) }}">
+            ← Previous
           </a>
         {% endif %}
 
+        <span>
+          Page {{ pagination.page }} of {{ pagination.pages }}
+        </span>
+
         {% if pagination.has_next %}
           <a class="button button-secondary"
-             href="{{ url_for('alumni_directory', q=q, department=department, graduation_year=graduation_year, page=pagination.next_num) }}">
-            Next
+             href="{{ url_for('alumni_directory',
+                 q=q, department=department,
+                 graduation_year=graduation_year,
+                 page=pagination.next_num) }}">
+            Next →
           </a>
         {% endif %}
-      </div>
+
+      </nav>
     {% endif %}
+
   </div>
 </section>
 {% endblock %}

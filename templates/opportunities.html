@@ -1,0 +1,130 @@
+
+{% extends "base.html" %}
+
+{% block title %}Career Opportunities | LegacyLink{% endblock %}
+
+{% block content %}
+
+<section class="page-head">
+    <div class="container">
+        <p class="eyebrow">GROW TOGETHER</p>
+        <h1>Career Opportunities</h1>
+        <p class="lead">
+            Discover jobs and internships shared by your alumni network.
+        </p>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+
+        <div class="section-heading">
+            <div>
+                <h2>Explore Opportunities</h2>
+                <p>Find your next opportunity through the LegacyLink network.</p>
+            </div>
+
+            {% if current_user.is_authenticated
+                  and current_user.alumni
+                  and current_user.alumni.verification_status == 'approved' %}
+                <a href="{{ url_for('opportunity.create_opportunity') }}"
+                   class="button">
+                    Post an Opportunity
+                </a>
+            {% endif %}
+        </div>
+
+        <form method="GET"
+              action="{{ url_for('opportunity.list_opportunities') }}"
+              class="opportunity-search">
+
+            <input type="text"
+                   name="q"
+                   placeholder="Search by job title or company..."
+                   value="{{ search_query }}"
+                   aria-label="Search opportunities">
+
+            <button type="submit" class="button">
+                Search
+            </button>
+        </form>
+
+        {% if opportunities %}
+
+            <div class="opportunity-grid">
+
+                {% for opportunity in opportunities %}
+
+                    <article class="opportunity-card">
+
+                        <div class="opportunity-card-top">
+                            <span class="opportunity-type">
+                                {{ opportunity.opportunity_type | title }}
+                            </span>
+
+                            {% if opportunity.deadline %}
+                                <span class="opportunity-date">
+                                    Deadline:
+                                    {{ opportunity.deadline.strftime('%d %b %Y') }}
+                                </span>
+                            {% endif %}
+                        </div>
+
+                        <h3>{{ opportunity.title }}</h3>
+
+                        <p class="opportunity-company">
+                            {{ opportunity.company }}
+                        </p>
+
+                        {% if opportunity.location %}
+                            <p class="opportunity-location">
+                                {{ opportunity.location }}
+                            </p>
+                        {% endif %}
+
+                        <p class="opportunity-description">
+                            {{ opportunity.description | truncate(160) }}
+                        </p>
+
+                        <div class="opportunity-card-bottom">
+                            <a href="{{ url_for(
+                                'opportunity.opportunity_detail',
+                                opportunity_id=opportunity.id
+                            ) }}"
+                               class="button button-secondary">
+                                View Details
+                            </a>
+                        </div>
+
+                    </article>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                <h3>No Opportunities Found</h3>
+
+                <p>
+                    There are currently no opportunities matching your search.
+                    Check back later for new opportunities.
+                </p>
+
+                {% if current_user.is_authenticated
+                      and current_user.alumni
+                      and current_user.alumni.verification_status == 'approved' %}
+                    <a href="{{ url_for('opportunity.create_opportunity') }}"
+                       class="button">
+                        Post an Opportunity
+                    </a>
+                {% endif %}
+            </div>
+
+        {% endif %}
+
+    </div>
+</section>
+
+{% endblock %}
