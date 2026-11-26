@@ -76,6 +76,11 @@
                             {{ opportunity.company }}
                         </p>
 
+                        <p class="opportunity-poster">
+                            Posted by:
+                            <strong>{{ opportunity.alumni.full_name }}</strong>
+                        </p>
+
                         {% if opportunity.location %}
                             <p class="opportunity-location">
                                 {{ opportunity.location }}
